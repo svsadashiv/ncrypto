@@ -560,8 +560,249 @@
     color: var(--accent2);
   }
 
-  /* Spinner */
-  @keyframes spin { to { transform: rotate(360deg); } }
+  /* Result actions row */
+  .result-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .result-actions .btn-preview,
+  .result-actions .btn-download {
+    width: 100%;
+    margin-top: 0;
+    box-sizing: border-box;
+  }
+
+  .btn-preview {
+    background: #a78bfa18;
+    border: 1px solid #a78bfa44;
+    border-radius: 10px;
+    color: var(--accent2);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-preview:hover {
+    background: #a78bfa28;
+    box-shadow: 0 4px 16px #a78bfa20;
+  }
+
+  /* Modal backdrop */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #00000088;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal-backdrop.open { display: flex; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 780px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.25s ease;
+    box-shadow: 0 32px 80px #00000060;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    gap: 12px;
+  }
+
+  .modal-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .modal-filename {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 340px;
+  }
+
+  .modal-filetype {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .modal-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .modal-dl-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+
+  .modal-dl-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 7px;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover { color: var(--error); border-color: var(--error); }
+
+  .modal-body {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+  }
+
+  /* Image preview */
+  .preview-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    min-height: 300px;
+    background: repeating-conic-gradient(#1a1a24 0% 25%, #141420 0% 50%) 0 0 / 20px 20px;
+  }
+
+  .preview-image img {
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 6px;
+    box-shadow: 0 8px 32px #00000060;
+  }
+
+  /* Text / code preview */
+  .preview-text {
+    padding: 24px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    tab-size: 2;
+  }
+
+  /* PDF preview */
+  .preview-pdf {
+    width: 100%;
+    height: 70vh;
+    border: none;
+    display: block;
+  }
+
+  /* Audio / video */
+  .preview-media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .preview-media video, .preview-media audio {
+    max-width: 100%;
+    border-radius: 10px;
+    outline: none;
+  }
+
+  /* Unsupported */
+  .preview-unsupported {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 52px 24px;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .preview-unsupported-icon { opacity: 0.25; }
+
+  .preview-unsupported-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .preview-unsupported-sub {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  /* Syntax highlight colors (minimal) */
+  .tok-key   { color: #a78bfa; }
+  .tok-str   { color: #34d399; }
+  .tok-num   { color: #fbbf24; }
+  .tok-bool  { color: #f87171; }
+  .tok-null  { color: #f87171; }
 
   .spinner {
     width: 16px;
@@ -732,14 +973,45 @@
           <span id="res-dec-title">Decryption complete</span>
         </div>
         <div class="result-meta" id="res-dec-meta"></div>
-        <button class="btn-download" id="btn-dl-dec" onclick="downloadResult('dec')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download Decrypted File
-        </button>
+        <div class="result-actions" id="dec-actions" style="display:none">
+          <button class="btn-preview" id="btn-preview-dec" onclick="previewResult()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            Preview File
+          </button>
+          <button class="btn-download" id="btn-dl-dec" onclick="downloadResult('dec')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </button>
+        </div>
       </div>
     </div>
 
   </div><!-- /card -->
+
+  <!-- ── Preview Modal ─────────────────────────────────────── -->
+  <div class="modal-backdrop" id="modal-backdrop" onclick="closePreview(event)">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span class="modal-filename" id="modal-filename">—</span>
+          <span class="modal-filetype" id="modal-filetype">—</span>
+        </div>
+        <div class="modal-header-actions">
+          <button class="modal-dl-btn" onclick="downloadResult('dec')" title="Download">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </button>
+          <button class="modal-close" onclick="closePreview()" title="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- content injected by JS -->
+      </div>
+    </div>
+  </div>
 
   <div class="info-strip">
     <div class="info-chip">
@@ -820,6 +1092,7 @@ function clearFile(side) {
 function hideResult(side) {
   document.getElementById('res-' + side).classList.remove('visible','success','error-box');
   document.getElementById('prog-' + side).classList.remove('visible');
+  if (side === 'dec') document.getElementById('dec-actions').style.display = 'none';
 }
 
 // ─── Password ────────────────────────────────────────────────────────────────
@@ -1001,7 +1274,7 @@ async function doDecrypt() {
       `Algorithm: ${algo === 'AES-GCM' ? 'AES-256-GCM' : 'AES-256-CBC'}<br>` +
       `Decrypted size: ${formatBytes(decrypted.byteLength)}<br>` +
       `Original filename: ${origName}`;
-    document.getElementById('btn-dl-dec').style.display = '';
+    document.getElementById('dec-actions').style.display = '';
 
   } catch (err) {
     const res = document.getElementById('res-dec');
@@ -1010,7 +1283,7 @@ async function doDecrypt() {
     document.getElementById('res-dec-title').textContent = 'Decryption failed';
     document.getElementById('res-dec-meta').textContent =
       err.name === 'OperationError' ? 'Wrong password or corrupted file.' : err.message;
-    document.getElementById('btn-dl-dec').style.display = 'none';
+    document.getElementById('dec-actions').style.display = 'none';
   }
 
   btn.disabled = false; spin.classList.remove('visible');
@@ -1028,7 +1301,134 @@ function downloadResult(side) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// ─── Util ─────────────────────────────────────────────────────────────────────
+// ─── Preview ──────────────────────────────────────────────────────────────────
+function getFileCategory(name, blob) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const mime = blob.type || '';
+
+  if (/^image\//.test(mime) || /^(png|jpe?g|gif|webp|svg|bmp|ico|avif)$/.test(ext))
+    return 'image';
+  if (mime === 'application/pdf' || ext === 'pdf')
+    return 'pdf';
+  if (/^video\//.test(mime) || /^(mp4|webm|ogv|mov|mkv)$/.test(ext))
+    return 'video';
+  if (/^audio\//.test(mime) || /^(mp3|wav|ogg|flac|aac|m4a)$/.test(ext))
+    return 'audio';
+  if (/^text\//.test(mime) ||
+      /^(txt|md|markdown|json|csv|xml|html|htm|css|js|ts|jsx|tsx|py|sh|bash|yml|yaml|toml|ini|cfg|log|sql|rs|go|java|c|cpp|h|rb|php|swift|kt)$/.test(ext))
+    return 'text';
+  return 'unsupported';
+}
+
+function syntaxHighlightJSON(str) {
+  return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+    let cls = 'tok-num';
+    if (/^"/.test(match)) cls = /:$/.test(match) ? 'tok-key' : 'tok-str';
+    else if (/true|false/.test(match)) cls = 'tok-bool';
+    else if (/null/.test(match)) cls = 'tok-null';
+    return `<span class="${cls}">${match}</span>`;
+  });
+}
+
+async function previewResult() {
+  const r = state.dec.result;
+  if (!r) return;
+
+  const { blob, name } = r;
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const category = getFileCategory(name, blob);
+  const url = URL.createObjectURL(blob);
+
+  // Set header info
+  document.getElementById('modal-filename').textContent = name;
+  document.getElementById('modal-filetype').textContent = ext.toUpperCase() || '?';
+
+  const body = document.getElementById('modal-body');
+  body.innerHTML = '';
+
+  if (category === 'image') {
+    const wrap = document.createElement('div');
+    wrap.className = 'preview-image';
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = name;
+    wrap.appendChild(img);
+    body.appendChild(wrap);
+
+  } else if (category === 'pdf') {
+    const iframe = document.createElement('iframe');
+    iframe.className = 'preview-pdf';
+    iframe.src = url;
+    iframe.title = name;
+    body.appendChild(iframe);
+
+  } else if (category === 'video') {
+    const wrap = document.createElement('div');
+    wrap.className = 'preview-media';
+    const vid = document.createElement('video');
+    vid.src = url; vid.controls = true; vid.style.maxHeight = '60vh';
+    wrap.appendChild(vid);
+    body.appendChild(wrap);
+
+  } else if (category === 'audio') {
+    const wrap = document.createElement('div');
+    wrap.className = 'preview-media';
+    const aud = document.createElement('audio');
+    aud.src = url; aud.controls = true;
+    wrap.appendChild(aud);
+    body.appendChild(wrap);
+
+  } else if (category === 'text') {
+    const text = await blob.text();
+    const pre = document.createElement('pre');
+    pre.className = 'preview-text';
+
+    if (ext === 'json') {
+      try {
+        const pretty = JSON.stringify(JSON.parse(text), null, 2);
+        pre.innerHTML = syntaxHighlightJSON(
+          pretty.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        );
+      } catch { pre.textContent = text; }
+    } else {
+      pre.textContent = text;
+    }
+    body.appendChild(pre);
+
+  } else {
+    const wrap = document.createElement('div');
+    wrap.className = 'preview-unsupported';
+    wrap.innerHTML = `
+      <svg class="preview-unsupported-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="9" y1="15" x2="15" y2="15"/>
+      </svg>
+      <div class="preview-unsupported-title">Preview not available</div>
+      <div class="preview-unsupported-sub">.${ext} files cannot be previewed in the browser.<br>Download the file to open it locally.</div>`;
+    body.appendChild(wrap);
+  }
+
+  // Open modal
+  document.getElementById('modal-backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Store url to revoke on close
+  state._previewUrl = url;
+}
+
+function closePreview(e) {
+  if (e && e.target !== document.getElementById('modal-backdrop')) return;
+  document.getElementById('modal-backdrop').classList.remove('open');
+  document.body.style.overflow = '';
+  if (state._previewUrl) { URL.revokeObjectURL(state._previewUrl); state._previewUrl = null; }
+  document.getElementById('modal-body').innerHTML = '';
+}
+
+// Close on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePreview();
+});
 function concat(...arrays) {
   const total = arrays.reduce((s, a) => s + a.byteLength, 0);
   const out = new Uint8Array(total);
