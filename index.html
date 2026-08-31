@@ -7,830 +7,231 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --surface2: #18181f;
-    --border: #2a2a36;
-    --border-glow: #4f4fff44;
-    --accent: #5b5fff;
-    --accent2: #a78bfa;
-    --accent-glow: #5b5fff33;
-    --text: #e8e8f0;
-    --text-muted: #6b6b80;
-    --text-dim: #3a3a50;
-    --success: #34d399;
-    --error: #f87171;
-    --mono: 'DM Mono', monospace;
-    --sans: 'Syne', sans-serif;
+    --bg:#0a0a0f; --surface:#111118; --surface2:#18181f;
+    --border:#2a2a36; --border-glow:#4f4fff44;
+    --accent:#5b5fff; --accent2:#a78bfa; --accent-glow:#5b5fff33;
+    --text:#e8e8f0; --text-muted:#6b6b80; --text-dim:#3a3a50;
+    --success:#34d399; --error:#f87171;
+    --mono:'DM Mono',monospace; --sans:'Syne',sans-serif;
   }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 48px 20px 80px;
-    overflow-x: hidden;
-  }
-
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 48px 48px;
-    opacity: 0.18;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  body::after {
-    content: '';
-    position: fixed;
-    top: -200px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 700px;
-    height: 500px;
-    background: radial-gradient(ellipse, #5b5fff18 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .wrapper {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 560px;
-  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:48px 20px 80px;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background-image:linear-gradient(var(--border) 1px,transparent 1px),
+      linear-gradient(90deg,var(--border) 1px,transparent 1px);
+    background-size:48px 48px;opacity:.18;pointer-events:none;z-index:0}
+  body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);
+    width:700px;height:500px;background:radial-gradient(ellipse,#5b5fff18 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+  .wrapper{position:relative;z-index:1;width:100%;max-width:560px}
 
   /* Header */
-  header {
-    text-align: center;
-    margin-bottom: 48px;
-    animation: fadeDown 0.6s ease both;
-  }
+  header{text-align:center;margin-bottom:48px;animation:fadeDown .6s ease both}
+  .logo-mark{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;
+    border:1.5px solid var(--border);border-radius:14px;margin-bottom:20px;background:var(--surface);
+    position:relative;overflow:hidden}
+  .logo-mark::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-glow),transparent)}
+  .logo-mark svg{position:relative;z-index:1}
+  h1{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+  h1 span{color:var(--accent)}
+  .subtitle{font-family:var(--mono);font-size:.72rem;color:var(--text-muted);letter-spacing:.12em;
+    text-transform:uppercase;margin-top:8px}
 
-  .logo-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    margin-bottom: 20px;
-    background: var(--surface);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .logo-mark::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--accent-glow), transparent);
-  }
-
-  .logo-mark svg { position: relative; z-index: 1; }
-
-  h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: var(--text);
-    line-height: 1;
-  }
-
-  h1 span { color: var(--accent); }
-
-  .subtitle {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-top: 8px;
-  }
-
-  /* Tab switcher */
-  .tabs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 28px;
-    animation: fadeDown 0.6s ease 0.1s both;
-  }
-
-  .tab-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-family: var(--sans);
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    padding: 10px 0;
-    border-radius: 9px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-  }
-
-  .tab-btn.active {
-    background: var(--surface2);
-    color: var(--text);
-    box-shadow: 0 1px 12px var(--accent-glow), inset 0 0 0 1px var(--border-glow);
-  }
-
-  .tab-btn:hover:not(.active) { color: var(--text); }
+  /* Tabs */
+  .tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:4px;margin-bottom:28px;animation:fadeDown .6s ease .1s both}
+  .tab-btn{background:none;border:none;color:var(--text-muted);font-family:var(--sans);font-size:.85rem;
+    font-weight:600;letter-spacing:.04em;padding:10px 0;border-radius:9px;cursor:pointer;
+    transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+  .tab-btn.active{background:var(--surface2);color:var(--text);
+    box-shadow:0 1px 12px var(--accent-glow),inset 0 0 0 1px var(--border-glow)}
+  .tab-btn:hover:not(.active){color:var(--text)}
 
   /* Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 32px;
-    animation: fadeUp 0.5s ease 0.15s both;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
-  }
-
-  .panel { display: none; }
-  .panel.active { display: block; }
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px;
+    animation:fadeUp .5s ease .15s both;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent-glow),transparent)}
+  .panel{display:none}.panel.active{display:block}
 
   /* Drop zone */
-  .dropzone {
-    border: 1.5px dashed var(--border);
-    border-radius: 12px;
-    padding: 36px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    background: var(--surface2);
-    position: relative;
-    margin-bottom: 24px;
-  }
-
-  .dropzone:hover, .dropzone.dragover {
-    border-color: var(--accent);
-    background: #5b5fff0a;
-    box-shadow: 0 0 0 4px var(--accent-glow);
-  }
-
-  .dropzone input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-  }
-
-  .drop-icon {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 12px;
-    opacity: 0.4;
-    transition: opacity 0.2s;
-  }
-
-  .dropzone:hover .drop-icon, .dropzone.dragover .drop-icon { opacity: 0.85; }
-
-  .drop-label {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
-
-  .drop-label strong {
-    color: var(--accent2);
-    font-weight: 600;
-  }
+  .dropzone{border:1.5px dashed var(--border);border-radius:12px;padding:36px 20px;
+    text-align:center;cursor:pointer;transition:all .25s;background:var(--surface2);
+    position:relative;margin-bottom:24px}
+  .dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:#5b5fff0a;
+    box-shadow:0 0 0 4px var(--accent-glow)}
+  .dropzone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .drop-icon{width:40px;height:40px;margin:0 auto 12px;opacity:.4;transition:opacity .2s}
+  .dropzone:hover .drop-icon,.dropzone.dragover .drop-icon{opacity:.85}
+  .drop-label{font-size:.85rem;color:var(--text-muted);line-height:1.5}
+  .drop-label strong{color:var(--accent2);font-weight:600}
 
   /* File pill */
-  .file-pill {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-bottom: 24px;
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    color: var(--text);
-  }
+  .file-pill{display:flex;align-items:center;gap:10px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:10px;padding:10px 14px;
+    font-family:var(--mono);font-size:.78rem;color:var(--text)}
+  .file-pill.visible{display:flex}
+  .file-pill-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .file-pill-size{color:var(--text-muted);white-space:nowrap}
+  .file-pill-remove{background:none;border:none;color:var(--text-dim);cursor:pointer;
+    padding:2px;display:flex;align-items:center;transition:color .15s;flex-shrink:0}
+  .file-pill-remove:hover{color:var(--error)}
+  .file-pill-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+  .file-pill-actions .file-pill-remove:hover{color:var(--accent2)}
+  .file-pill.err .file-pill-name{color:var(--error)}
 
-  .file-pill.visible { display: flex; }
+  /* Multi-file list */
+  .file-list{display:none;flex-direction:column;gap:8px;margin-bottom:24px;
+    max-height:260px;overflow-y:auto;padding-right:2px}
+  .file-list.visible{display:flex}
+  .file-list-header{display:none;align-items:center;justify-content:space-between;
+    font-family:var(--mono);font-size:.7rem;color:var(--text-muted);letter-spacing:.05em;
+    margin-bottom:10px;text-transform:uppercase}
+  .file-list-header.visible{display:flex}
+  .link-btn{background:none;border:none;color:var(--accent2);font-family:var(--mono);
+    font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;
+    text-decoration:underline;text-underline-offset:2px}
+  .link-btn:hover{color:var(--accent)}
 
-  .file-pill-name {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  /* Fields */
+  .field{margin-bottom:20px}
+  .field-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--text-muted);display:block;margin-bottom:8px}
+  .field-label-note{text-transform:none;letter-spacing:0;color:var(--text-dim)}
+  .field-row{display:flex;gap:8px;align-items:center}
+  .input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    color:var(--text);font-family:var(--mono);font-size:.88rem;padding:11px 14px;outline:none;
+    transition:all .2s;letter-spacing:.05em}
+  .input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+  .input::placeholder{color:var(--text-dim)}
+  .icon-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    color:var(--text-muted);cursor:pointer;padding:11px 13px;display:flex;align-items:center;
+    transition:all .2s;flex-shrink:0}
+  .icon-btn:hover{border-color:var(--accent);color:var(--text)}
+  .strength-bar{height:3px;background:var(--surface2);border-radius:99px;margin-top:8px;overflow:hidden}
+  .strength-fill{height:100%;border-radius:99px;transition:width .3s,background .3s;width:0}
 
-  .file-pill-size {
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
-
-  .file-pill-remove {
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    cursor: pointer;
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    transition: color 0.15s;
-    flex-shrink: 0;
-  }
-
-  .file-pill-remove:hover { color: var(--error); }
-
-  /* Field */
-  .field { margin-bottom: 20px; }
-
-  .field-label {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    display: block;
-    margin-bottom: 8px;
-  }
-
-  .field-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 0.88rem;
-    padding: 11px 14px;
-    outline: none;
-    transition: all 0.2s ease;
-    letter-spacing: 0.05em;
-  }
-
-  .input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
-
-  .input::placeholder { color: var(--text-dim); }
-
-  .icon-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 11px 13px;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-
-  .icon-btn:hover { border-color: var(--accent); color: var(--text); }
-
-  /* Strength bar */
-  .strength-bar {
-    height: 3px;
-    background: var(--surface2);
-    border-radius: 99px;
-    margin-top: 8px;
-    overflow: hidden;
-  }
-
-  .strength-fill {
-    height: 100%;
-    border-radius: 99px;
-    transition: width 0.3s ease, background 0.3s ease;
-    width: 0%;
-  }
-
-  /* Algorithm select */
-  .algo-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .algo-chip {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text-muted);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    padding: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .algo-chip.active {
-    border-color: var(--accent);
-    color: var(--accent2);
-    background: var(--accent-glow);
-  }
+  /* Algo chips */
+  .algo-row{display:flex;gap:8px;margin-bottom:24px}
+  .algo-chip{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+    color:var(--text-muted);font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;
+    padding:8px;cursor:pointer;transition:all .2s;text-align:center}
+  .algo-chip.active{border-color:var(--accent);color:var(--accent2);background:var(--accent-glow)}
 
   /* Primary button */
-  .btn-primary {
-    width: 100%;
-    background: var(--accent);
-    border: none;
-    border-radius: 12px;
-    color: #fff;
-    font-family: var(--sans);
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    padding: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #ffffff18, transparent);
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: #6e72ff;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px var(--accent-glow);
-  }
-
-  .btn-primary:active:not(:disabled) { transform: translateY(0); }
-
-  .btn-primary:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
+  .btn-primary{width:100%;background:var(--accent);border:none;border-radius:12px;color:#fff;
+    font-family:var(--sans);font-size:.9rem;font-weight:700;letter-spacing:.04em;padding:14px;
+    cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#ffffff18,transparent)}
+  .btn-primary:hover:not(:disabled){background:#6e72ff;transform:translateY(-1px);box-shadow:0 8px 24px var(--accent-glow)}
+  .btn-primary:active:not(:disabled){transform:translateY(0)}
+  .btn-primary:disabled{opacity:.35;cursor:not-allowed}
 
   /* Progress */
-  .progress-wrap {
-    display: none;
-    margin-top: 20px;
-  }
+  .progress-wrap{display:none;margin-top:20px}
+  .progress-wrap.visible{display:block}
+  .progress-label{font-family:var(--mono);font-size:.68rem;color:var(--text-muted);
+    letter-spacing:.05em;display:flex;justify-content:space-between;align-items:flex-start;
+    gap:8px;margin-bottom:6px;flex-wrap:wrap}
+  .progress-label span:first-child{flex:1;min-width:0;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .progress-track{height:4px;background:var(--surface2);border-radius:99px;overflow:hidden}
+  .progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border-radius:99px;width:0;transition:width .2s linear}
 
-  .progress-wrap.visible { display: block; }
+  /* Result box */
+  .result-box{display:none;margin-top:20px;background:var(--surface2);border:1px solid var(--border);
+    border-radius:12px;padding:18px}
+  .result-box.visible{display:block}
+  .result-box.success{border-color:#34d39944}
+  .result-box.error-box{border-color:#f8717144}
+  .result-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:.85rem;font-weight:600}
+  .result-header.ok{color:var(--success)}.result-header.err{color:var(--error)}
+  .result-meta{font-family:var(--mono);font-size:.72rem;color:var(--text-muted);line-height:1.8}
+  .result-meta .warn-line{color:var(--error)}
 
-  .progress-label {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    letter-spacing: 0.08em;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 6px;
-  }
+  /* Result action buttons */
+  .result-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .btn-preview{background:#a78bfa18;border:1px solid #a78bfa44;border-radius:10px;
+    color:var(--accent2);font-family:var(--sans);font-size:.85rem;font-weight:700;padding:12px;
+    cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+  .btn-preview:hover{background:#a78bfa28;box-shadow:0 4px 16px #a78bfa20}
+  .btn-download{background:#34d39918;border:1px solid #34d39944;border-radius:10px;
+    color:var(--success);font-family:var(--sans);font-size:.85rem;font-weight:700;padding:12px;
+    cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:0}
+  .btn-download:hover{background:#34d39928;box-shadow:0 4px 16px #34d39920}
 
-  .progress-track {
-    height: 4px;
-    background: var(--surface2);
-    border-radius: 99px;
-    overflow: hidden;
-  }
+  /* Divider */
+  .divider{display:flex;align-items:center;gap:12px;margin:24px 0;font-family:var(--mono);
+    font-size:.66rem;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  .progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 99px;
-    width: 0%;
-    transition: width 0.3s ease;
-  }
+  /* Info strip */
+  .info-strip{display:flex;gap:12px;margin-top:24px;animation:fadeUp .5s ease .25s both}
+  .info-chip{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+  .info-chip-label{font-family:var(--mono);font-size:.62rem;color:var(--text-muted);letter-spacing:.1em;
+    text-transform:uppercase;display:block;margin-bottom:4px}
+  .info-chip-value{font-size:.78rem;font-weight:600;color:var(--accent2)}
 
-  /* Result card */
-  .result-box {
-    display: none;
-    margin-top: 20px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-  }
+  /* Spinner */
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner{width:16px;height:16px;border:2px solid #ffffff44;border-top-color:#fff;
+    border-radius:50%;animation:spin .7s linear infinite;display:none}
+  .spinner.visible{display:block}
 
-  .result-box.visible { display: block; }
+  /* Modal */
+  .modal-backdrop{display:none;position:fixed;inset:0;background:#00000088;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100;
+    align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease}
+  .modal-backdrop.open{display:flex}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    width:100%;max-width:780px;max-height:88vh;display:flex;flex-direction:column;
+    overflow:hidden;animation:slideUp .25s ease;box-shadow:0 32px 80px #00000060}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;gap:12px}
+  .modal-title-row{display:flex;align-items:center;gap:8px;overflow:hidden}
+  .modal-filename{font-family:var(--mono);font-size:.8rem;color:var(--text);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:340px}
+  .modal-filetype{font-family:var(--mono);font-size:.68rem;color:var(--text-muted);
+    background:var(--surface2);border:1px solid var(--border);border-radius:5px;
+    padding:2px 7px;white-space:nowrap;flex-shrink:0}
+  .modal-header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .modal-dl-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+    color:var(--text-muted);font-family:var(--sans);font-size:.75rem;font-weight:600;
+    padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+  .modal-dl-btn:hover{color:var(--text);border-color:var(--accent)}
+  .modal-close{background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+    color:var(--text-muted);cursor:pointer;padding:7px;display:flex;align-items:center;transition:all .2s}
+  .modal-close:hover{color:var(--error);border-color:var(--error)}
+  .modal-body{flex:1;overflow:auto;position:relative}
+  .preview-image{display:flex;align-items:center;justify-content:center;padding:24px;min-height:300px;
+    background:repeating-conic-gradient(#1a1a24 0% 25%,#141420 0% 50%) 0 0/20px 20px}
+  .preview-image img{max-width:100%;max-height:60vh;border-radius:6px;box-shadow:0 8px 32px #00000060}
+  .preview-text{padding:24px;font-family:var(--mono);font-size:.8rem;line-height:1.7;
+    color:var(--text);white-space:pre-wrap;word-break:break-word;tab-size:2}
+  .preview-pdf{width:100%;height:70vh;border:none;display:block}
+  .preview-media{display:flex;align-items:center;justify-content:center;padding:32px 24px;
+    flex-direction:column;gap:16px}
+  .preview-media video,.preview-media audio{max-width:100%;border-radius:10px;outline:none}
+  .preview-unsupported{display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:52px 24px;gap:16px;text-align:center}
+  .preview-unsupported-icon{opacity:.25}
+  .preview-unsupported-title{font-size:.95rem;font-weight:600;color:var(--text-muted)}
+  .preview-unsupported-sub{font-family:var(--mono);font-size:.75rem;color:var(--text-dim)}
+  .tok-key{color:#a78bfa}.tok-str{color:#34d399}.tok-num{color:#fbbf24}
+  .tok-bool{color:#f87171}.tok-null{color:#f87171}
 
-  .result-box.success { border-color: #34d39944; }
-  .result-box.error-box { border-color: #f8717144; }
-
-  .result-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-  }
-
-  .result-header.ok { color: var(--success); }
-  .result-header.err { color: var(--error); }
-
-  .result-meta {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    line-height: 1.8;
-  }
-
-  .btn-download {
-    margin-top: 14px;
-    width: 100%;
-    background: #34d39918;
-    border: 1px solid #34d39944;
-    border-radius: 10px;
-    color: var(--success);
-    font-family: var(--sans);
-    font-size: 0.85rem;
-    font-weight: 700;
-    padding: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .btn-download:hover {
-    background: #34d39928;
-    box-shadow: 0 4px 16px #34d39920;
-  }
-
-  /* Section divider */
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 24px 0;
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* Info footer */
-  .info-strip {
-    display: flex;
-    gap: 12px;
-    margin-top: 24px;
-    animation: fadeUp 0.5s ease 0.25s both;
-  }
-
-  .info-chip {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-  }
-
-  .info-chip-label {
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .info-chip-value {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--accent2);
-  }
-
-  /* Result actions row */
-  .result-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 14px;
-  }
-
-  .result-actions .btn-preview,
-  .result-actions .btn-download {
-    width: 100%;
-    margin-top: 0;
-    box-sizing: border-box;
-  }
-
-  .btn-preview {
-    background: #a78bfa18;
-    border: 1px solid #a78bfa44;
-    border-radius: 10px;
-    color: var(--accent2);
-    font-family: var(--sans);
-    font-size: 0.85rem;
-    font-weight: 700;
-    padding: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .btn-preview:hover {
-    background: #a78bfa28;
-    box-shadow: 0 4px 16px #a78bfa20;
-  }
-
-  /* Modal backdrop */
-  .modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #00000088;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    animation: fadeIn 0.2s ease;
-  }
-
-  .modal-backdrop.open { display: flex; }
-
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    width: 100%;
-    max-width: 780px;
-    max-height: 88vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    animation: slideUp 0.25s ease;
-    box-shadow: 0 32px 80px #00000060;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    gap: 12px;
-  }
-
-  .modal-title-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    overflow: hidden;
-  }
-
-  .modal-filename {
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    color: var(--text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 340px;
-  }
-
-  .modal-filetype {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--text-muted);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 2px 7px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .modal-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .modal-dl-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text-muted);
-    font-family: var(--sans);
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 6px 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-  }
-
-  .modal-dl-btn:hover { color: var(--text); border-color: var(--accent); }
-
-  .modal-close {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 7px;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s;
-  }
-
-  .modal-close:hover { color: var(--error); border-color: var(--error); }
-
-  .modal-body {
-    flex: 1;
-    overflow: auto;
-    position: relative;
-  }
-
-  /* Image preview */
-  .preview-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    min-height: 300px;
-    background: repeating-conic-gradient(#1a1a24 0% 25%, #141420 0% 50%) 0 0 / 20px 20px;
-  }
-
-  .preview-image img {
-    max-width: 100%;
-    max-height: 60vh;
-    border-radius: 6px;
-    box-shadow: 0 8px 32px #00000060;
-  }
-
-  /* Text / code preview */
-  .preview-text {
-    padding: 24px;
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    line-height: 1.7;
-    color: var(--text);
-    white-space: pre-wrap;
-    word-break: break-word;
-    tab-size: 2;
-  }
-
-  /* PDF preview */
-  .preview-pdf {
-    width: 100%;
-    height: 70vh;
-    border: none;
-    display: block;
-  }
-
-  /* Audio / video */
-  .preview-media {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 24px;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .preview-media video, .preview-media audio {
-    max-width: 100%;
-    border-radius: 10px;
-    outline: none;
-  }
-
-  /* Unsupported */
-  .preview-unsupported {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 52px 24px;
-    gap: 16px;
-    text-align: center;
-  }
-
-  .preview-unsupported-icon { opacity: 0.25; }
-
-  .preview-unsupported-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-muted);
-  }
-
-  .preview-unsupported-sub {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--text-dim);
-  }
-
-  /* Syntax highlight colors (minimal) */
-  .tok-key   { color: #a78bfa; }
-  .tok-str   { color: #34d399; }
-  .tok-num   { color: #fbbf24; }
-  .tok-bool  { color: #f87171; }
-  .tok-null  { color: #f87171; }
-
-  .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #ffffff44;
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
-  }
-
-  .spinner.visible { display: block; }
-
-  /* Animations */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-14px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
-
 <div class="wrapper">
+
   <header>
     <div class="logo-mark">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -858,33 +259,30 @@
 
     <!-- ENCRYPT PANEL -->
     <div class="panel active" id="panel-encrypt">
-
       <div class="dropzone" id="drop-enc"
         ondragover="handleDragOver(event,'drop-enc')"
         ondragleave="handleDragLeave('drop-enc')"
         ondrop="handleDrop(event,'enc')">
-        <input type="file" id="file-enc" onchange="handleFileSelect(event,'enc')" />
+        <input type="file" id="file-enc" multiple onchange="handleFileSelect(event,'enc')" />
         <svg class="drop-icon" viewBox="0 0 40 40" fill="none">
           <rect x="8" y="6" width="24" height="28" rx="3" stroke="#a78bfa" stroke-width="1.5"/>
           <path d="M14 20h12M20 14v12" stroke="#5b5fff" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        <p class="drop-label"><strong>Drop file here</strong> or click to browse<br><span style="font-size:0.78rem">Any file type · No size limit</span></p>
+        <p class="drop-label"><strong>Drop files here</strong> or click to browse<br><span style="font-size:.78rem">Any file type · Multiple files · No size limit</span></p>
       </div>
 
-      <div class="file-pill" id="pill-enc">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <span class="file-pill-name" id="pill-enc-name">—</span>
-        <span class="file-pill-size" id="pill-enc-size">—</span>
-        <button class="file-pill-remove" onclick="clearFile('enc')" title="Remove">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+      <div class="file-list-header" id="listhead-enc">
+        <span id="listhead-enc-count">0 files</span>
+        <button class="link-btn" onclick="clearAllFiles('enc')">Clear all</button>
       </div>
+      <div class="file-list" id="list-enc"></div>
 
       <div class="field">
-        <label class="field-label" for="pass-enc">Encryption Password</label>
+        <label class="field-label" for="pass-enc">Encryption Password <span class="field-label-note">— same passphrase used for every file</span></label>
         <div class="field-row">
-          <input class="input" type="password" id="pass-enc" placeholder="Enter a strong passphrase…" oninput="updateStrength(this.value,'strength-enc')" autocomplete="new-password" />
-          <button class="icon-btn" onclick="togglePass('pass-enc',this)" title="Show/Hide">
+          <input class="input" type="password" id="pass-enc" placeholder="Enter a strong passphrase…"
+            oninput="updateStrength(this.value,'strength-enc')" autocomplete="new-password" />
+          <button class="icon-btn" onclick="togglePass('pass-enc')" title="Show/Hide">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
@@ -892,15 +290,14 @@
       </div>
 
       <div class="divider">Algorithm</div>
-
-      <div class="algo-row" id="algo-row">
+      <div class="algo-row">
         <div class="algo-chip active" onclick="selectAlgo(this,'AES-GCM')">AES-256-GCM</div>
         <div class="algo-chip" onclick="selectAlgo(this,'AES-CBC')">AES-256-CBC</div>
       </div>
 
       <button class="btn-primary" id="btn-encrypt" onclick="doEncrypt()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/></svg>
-        Encrypt File
+        <span id="btn-encrypt-label">Encrypt File</span>
         <div class="spinner" id="spin-enc"></div>
       </button>
 
@@ -915,56 +312,52 @@
           <span id="res-enc-title">Encryption complete</span>
         </div>
         <div class="result-meta" id="res-enc-meta"></div>
-        <button class="btn-download" id="btn-dl-enc" onclick="downloadResult('enc')">
+        <button class="btn-download" id="btn-dlall-enc" style="margin-top:14px" onclick="downloadAll('enc')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download Encrypted File
+          <span id="btn-dlall-enc-label">Download Encrypted File</span>
         </button>
       </div>
     </div>
 
     <!-- DECRYPT PANEL -->
     <div class="panel" id="panel-decrypt">
-
       <div class="dropzone" id="drop-dec"
         ondragover="handleDragOver(event,'drop-dec')"
         ondragleave="handleDragLeave('drop-dec')"
         ondrop="handleDrop(event,'dec')">
-        <input type="file" id="file-dec" onchange="handleFileSelect(event,'dec')" accept=".enc,.vault" />
+        <input type="file" id="file-dec" multiple onchange="handleFileSelect(event,'dec')" accept=".enc" />
         <svg class="drop-icon" viewBox="0 0 40 40" fill="none">
           <rect x="8" y="6" width="24" height="28" rx="3" stroke="#a78bfa" stroke-width="1.5"/>
           <path d="M14 20h12M14 20l4-4M14 20l4 4" stroke="#5b5fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <p class="drop-label"><strong>Drop encrypted file here</strong> or click to browse<br><span style="font-size:0.78rem">.enc files produced by NcryptO</span></p>
+        <p class="drop-label"><strong>Drop encrypted files here</strong> or click to browse<br><span style="font-size:.78rem">.enc files produced by NcryptO · Multiple files ok</span></p>
       </div>
 
-      <div class="file-pill" id="pill-dec">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5b5fff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <span class="file-pill-name" id="pill-dec-name">—</span>
-        <span class="file-pill-size" id="pill-dec-size">—</span>
-        <button class="file-pill-remove" onclick="clearFile('dec')" title="Remove">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+      <div class="file-list-header" id="listhead-dec">
+        <span id="listhead-dec-count">0 files</span>
+        <button class="link-btn" onclick="clearAllFiles('dec')">Clear all</button>
       </div>
+      <div class="file-list" id="list-dec"></div>
 
       <div class="field">
-        <label class="field-label" for="pass-dec">Decryption Password</label>
+        <label class="field-label" for="pass-dec">Decryption Password <span class="field-label-note">— same passphrase for every file</span></label>
         <div class="field-row">
           <input class="input" type="password" id="pass-dec" placeholder="Enter your passphrase…" autocomplete="current-password" />
-          <button class="icon-btn" onclick="togglePass('pass-dec',this)" title="Show/Hide">
+          <button class="icon-btn" onclick="togglePass('pass-dec')" title="Show/Hide">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
       </div>
 
-      <button class="btn-primary" id="btn-decrypt" onclick="doDecrypt()" style="background:#a78bfa">
+      <button class="btn-primary" id="btn-decrypt" onclick="doDecrypt()" style="background:var(--accent2)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0" stroke-linecap="round" stroke-dasharray="2 2"/><line x1="8" y1="7" x2="4" y2="7"/></svg>
-        Decrypt File
+        <span id="btn-decrypt-label">Decrypt File</span>
         <div class="spinner" id="spin-dec"></div>
       </button>
 
       <div class="progress-wrap" id="prog-dec">
         <div class="progress-label"><span id="prog-dec-label">Decrypting…</span><span id="prog-dec-pct">0%</span></div>
-        <div class="progress-track"><div class="progress-bar" id="prog-dec-bar" style="background: linear-gradient(90deg, #a78bfa, #f0abfc)"></div></div>
+        <div class="progress-track"><div class="progress-bar" id="prog-dec-bar" style="background:linear-gradient(90deg,var(--accent2),#f0abfc)"></div></div>
       </div>
 
       <div class="result-box" id="res-dec">
@@ -978,9 +371,9 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
             Preview File
           </button>
-          <button class="btn-download" id="btn-dl-dec" onclick="downloadResult('dec')">
+          <button class="btn-download" id="btn-dlall-dec" onclick="downloadAll('dec')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download
+            <span id="btn-dlall-dec-label">Download</span>
           </button>
         </div>
       </div>
@@ -988,9 +381,9 @@
 
   </div><!-- /card -->
 
-  <!-- ── Preview Modal ─────────────────────────────────────── -->
+  <!-- Preview Modal -->
   <div class="modal-backdrop" id="modal-backdrop" onclick="closePreview(event)">
-    <div class="modal" id="modal">
+    <div class="modal">
       <div class="modal-header">
         <div class="modal-title-row">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -998,55 +391,48 @@
           <span class="modal-filetype" id="modal-filetype">—</span>
         </div>
         <div class="modal-header-actions">
-          <button class="modal-dl-btn" onclick="downloadResult('dec')" title="Download">
+          <button class="modal-dl-btn" onclick="downloadPreviewed()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download
           </button>
-          <button class="modal-close" onclick="closePreview()" title="Close">
+          <button class="modal-close" onclick="closePreview()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
       </div>
-      <div class="modal-body" id="modal-body">
-        <!-- content injected by JS -->
-      </div>
+      <div class="modal-body" id="modal-body"></div>
     </div>
   </div>
 
   <div class="info-strip">
-    <div class="info-chip">
-      <span class="info-chip-label">Processing</span>
-      <span class="info-chip-value">In-Browser</span>
-    </div>
-    <div class="info-chip">
-      <span class="info-chip-label">Cipher</span>
-      <span class="info-chip-value" id="chip-cipher">AES-256-GCM</span>
-    </div>
-    <div class="info-chip">
-      <span class="info-chip-label">KDF</span>
-      <span class="info-chip-value">PBKDF2</span>
-    </div>
+    <div class="info-chip"><span class="info-chip-label">Processing</span><span class="info-chip-value">In-Browser</span></div>
+    <div class="info-chip"><span class="info-chip-label">Cipher</span><span class="info-chip-value" id="chip-cipher">AES-256-GCM</span></div>
+    <div class="info-chip"><span class="info-chip-label">KDF</span><span class="info-chip-value">PBKDF2</span></div>
   </div>
 
 </div><!-- /wrapper -->
 
 <script>
-// ─── State ───────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────
+// Each side (enc/dec) holds an ordered list of "items" — one per queued file.
+// A single passphrase field covers every item in the list, mirroring the CLI's
+// directory batch mode (one password, many files).
 let state = {
-  enc: { file: null, result: null },
-  dec: { file: null, result: null },
-  algo: 'AES-GCM'
+  enc: { items: [] },
+  dec: { items: [] },
+  algo: 'AES-GCM',
 };
 
-// ─── Tab switching ────────────────────────────────────────────────────────────
+function makeId() { return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+// ── UI helpers ───────────────────────────────────────────────────────────────
 function switchTab(tab) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + tab).classList.add('active');
-  document.getElementById('tab-' + tab.slice(0,3)).classList.add('active');
+  document.getElementById('tab-' + tab.slice(0, 3)).classList.add('active');
 }
 
-// ─── Algorithm selection ─────────────────────────────────────────────────────
 function selectAlgo(el, algo) {
   document.querySelectorAll('.algo-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
@@ -1054,49 +440,7 @@ function selectAlgo(el, algo) {
   document.getElementById('chip-cipher').textContent = algo === 'AES-GCM' ? 'AES-256-GCM' : 'AES-256-CBC';
 }
 
-// ─── Drag & Drop ─────────────────────────────────────────────────────────────
-function handleDragOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('dragover'); }
-function handleDragLeave(id) { document.getElementById(id).classList.remove('dragover'); }
-function handleDrop(e, side) {
-  e.preventDefault();
-  const id = 'drop-' + side;
-  document.getElementById(id).classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file) setFile(side, file);
-}
-function handleFileSelect(e, side) {
-  const file = e.target.files[0];
-  if (file) setFile(side, file);
-}
-
-function setFile(side, file) {
-  state[side].file = file;
-  state[side].result = null;
-  const pill = document.getElementById('pill-' + side);
-  document.getElementById('pill-' + side + '-name').textContent = file.name;
-  document.getElementById('pill-' + side + '-size').textContent = formatBytes(file.size);
-  pill.classList.add('visible');
-  document.getElementById('drop-' + side).style.display = 'none';
-  hideResult(side);
-}
-
-function clearFile(side) {
-  state[side].file = null;
-  state[side].result = null;
-  document.getElementById('pill-' + side).classList.remove('visible');
-  document.getElementById('drop-' + side).style.display = '';
-  document.getElementById('file-' + side).value = '';
-  hideResult(side);
-}
-
-function hideResult(side) {
-  document.getElementById('res-' + side).classList.remove('visible','success','error-box');
-  document.getElementById('prog-' + side).classList.remove('visible');
-  if (side === 'dec') document.getElementById('dec-actions').style.display = 'none';
-}
-
-// ─── Password ────────────────────────────────────────────────────────────────
-function togglePass(id, btn) {
+function togglePass(id) {
   const inp = document.getElementById(id);
   inp.type = inp.type === 'password' ? 'text' : 'password';
 }
@@ -1104,242 +448,603 @@ function togglePass(id, btn) {
 function updateStrength(pass, barId) {
   const bar = document.getElementById(barId);
   let score = 0;
-  if (pass.length >= 8) score++;
+  if (pass.length >= 8)  score++;
   if (pass.length >= 14) score++;
   if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score++;
-  if (/\d/.test(pass)) score++;
+  if (/\d/.test(pass))   score++;
   if (/[^A-Za-z0-9]/.test(pass)) score++;
-  const pct = (score / 5) * 100;
   const colors = ['', '#f87171', '#fb923c', '#fbbf24', '#34d399', '#a78bfa'];
-  bar.style.width = pct + '%';
+  bar.style.width      = (score / 5 * 100) + '%';
   bar.style.background = colors[score] || '#f87171';
 }
 
-// ─── Crypto helpers ──────────────────────────────────────────────────────────
-async function deriveKey(password, salt, algo) {
-  const enc = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: 310000, hash: 'SHA-256' },
-    keyMaterial,
-    { name: algo, length: 256 },
-    false,
-    algo === 'AES-GCM' ? ['encrypt', 'decrypt'] : ['encrypt', 'decrypt']
-  );
-}
-
-function formatBytes(b) {
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
-  return (b/1048576).toFixed(1) + ' MB';
-}
-
-// Simulated progress animation
-function animateProgress(barId, pctId, labelId, label, duration, cb) {
-  const bar = document.getElementById(barId);
-  const pct = document.getElementById(pctId);
-  const lbl = document.getElementById(labelId);
-  lbl.textContent = label;
-  let start = null;
-  function step(ts) {
-    if (!start) start = ts;
-    const prog = Math.min((ts - start) / duration, 0.9);
-    const val = Math.round(prog * 100);
-    bar.style.width = val + '%';
-    pct.textContent = val + '%';
-    if (prog < 0.9) requestAnimationFrame(step);
-    else cb();
+// ── File queue management ───────────────────────────────────────────────────
+function addFiles(side, fileList) {
+  const arr = Array.from(fileList || []);
+  if (!arr.length) return;
+  for (const file of arr) {
+    state[side].items.push({
+      id: makeId(), file,
+      status: 'pending',   // pending | working | done | error
+      pct: 0,
+      resultBlob: null,
+      resultName: null,
+      errorMsg: null,
+    });
   }
-  requestAnimationFrame(step);
+  hideResult(side);
+  renderFileList(side);
 }
 
-function finishProgress(barId, pctId) {
-  document.getElementById(barId).style.width = '100%';
-  document.getElementById(pctId).textContent = '100%';
+function removeFile(side, id) {
+  state[side].items = state[side].items.filter(it => it.id !== id);
+  renderFileList(side);
 }
 
-// ─── Encrypt ─────────────────────────────────────────────────────────────────
+function clearAllFiles(side) {
+  state[side].items = [];
+  document.getElementById('file-' + side).value = '';
+  renderFileList(side);
+  hideResult(side);
+}
+
+function renderFileList(side) {
+  const items    = state[side].items;
+  const listEl   = document.getElementById('list-' + side);
+  const headEl   = document.getElementById('listhead-' + side);
+  const countEl  = document.getElementById('listhead-' + side + '-count');
+  const btn      = document.getElementById(side === 'enc' ? 'btn-encrypt' : 'btn-decrypt');
+  const btnLabel = document.getElementById(side === 'enc' ? 'btn-encrypt-label' : 'btn-decrypt-label');
+
+  if (!items.length) {
+    listEl.classList.remove('visible');
+    headEl.classList.remove('visible');
+    listEl.innerHTML = '';
+    if (btn) btn.disabled = true;
+    return;
+  }
+
+  listEl.classList.add('visible');
+  headEl.classList.add('visible');
+  const totalSize = items.reduce((s, it) => s + it.file.size, 0);
+  countEl.textContent = `${items.length} file${items.length > 1 ? 's' : ''} · ${formatBytes(totalSize)}`;
+  if (btn) btn.disabled = false;
+  if (btnLabel) btnLabel.textContent = (side === 'enc' ? 'Encrypt ' : 'Decrypt ') + (items.length > 1 ? `${items.length} Files` : 'File');
+
+  listEl.innerHTML = items.map(it => renderFileRow(side, it)).join('');
+}
+
+function renderFileRow(side, it) {
+  const sizeStr = formatBytes(it.file.size);
+  const isDec   = side === 'dec';
+  let actionsHtml;
+
+  if (it.status === 'pending') {
+    actionsHtml = `<button class="file-pill-remove" onclick="removeFile('${side}','${it.id}')" title="Remove">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>`;
+  } else if (it.status === 'working') {
+    actionsHtml = `<div class="spinner visible" style="border-color:#ffffff33;border-top-color:var(--accent2)"></div>`;
+  } else if (it.status === 'done') {
+    const previewBtn = isDec
+      ? `<button class="file-pill-remove" onclick="previewResult('${it.id}')" title="Preview">
+           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+         </button>`
+      : '';
+    actionsHtml = `<div class="file-pill-actions">
+        ${previewBtn}
+        <button class="file-pill-remove" style="color:var(--success)" onclick="downloadOne('${side}','${it.id}')" title="Download">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+      </div>`;
+  } else {
+    actionsHtml = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  }
+
+  const displayName = it.status === 'done' ? it.resultName : it.file.name;
+  const rowClass    = it.status === 'error' ? 'file-pill visible err' : 'file-pill visible';
+  const subText     = it.status === 'error' ? `<span class="file-pill-size" style="color:var(--error)">${escapeHtml(it.errorMsg || 'failed')}</span>` : `<span class="file-pill-size">${sizeStr}</span>`;
+
+  return `<div class="${rowClass}" data-id="${it.id}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="file-pill-name" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</span>
+      ${subText}
+      ${actionsHtml}
+    </div>`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── File input / drag-drop ───────────────────────────────────────────────────
+function handleDragOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('dragover'); }
+function handleDragLeave(id)   { document.getElementById(id).classList.remove('dragover'); }
+function handleDrop(e, side) {
+  e.preventDefault();
+  document.getElementById('drop-' + side).classList.remove('dragover');
+  addFiles(side, e.dataTransfer.files);
+}
+function handleFileSelect(e, side) {
+  addFiles(side, e.target.files);
+  e.target.value = ''; // allow re-selecting the same file(s) later
+}
+function hideResult(side) {
+  document.getElementById('res-' + side).classList.remove('visible', 'success', 'error-box');
+  document.getElementById('prog-' + side).classList.remove('visible');
+  if (side === 'dec') document.getElementById('dec-actions').style.display = 'none';
+}
+
+// ── Progress ─────────────────────────────────────────────────────────────────
+function formatBytes(b) {
+  if (b < 1024)       return b + ' B';
+  if (b < 1048576)    return (b / 1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b / 1048576).toFixed(1) + ' MB';
+  return (b / 1073741824).toFixed(2) + ' GB';
+}
+function formatSpeed(bps) {
+  return bps < 1048576 ? (bps / 1024).toFixed(0) + ' KB/s' : (bps / 1048576).toFixed(1) + ' MB/s';
+}
+function formatETA(s) {
+  if (!isFinite(s) || s > 3600) return '—';
+  return s < 60 ? Math.ceil(s) + 's' : Math.floor(s / 60) + 'm ' + Math.ceil(s % 60) + 's';
+}
+function setProgress(barId, pctId, labelId, pct, label) {
+  if (labelId) document.getElementById(labelId).textContent = label;
+  document.getElementById(barId).style.width = Math.min(pct, 100) + '%';
+  document.getElementById(pctId).textContent = Math.min(Math.round(pct), 100) + '%';
+}
+const tick = () => new Promise(r => setTimeout(r, 0));
+
+// ── Crypto utilities ─────────────────────────────────────────────────────────
+const BLOCK     = 16;
+const CHUNK     = 2 * 1024 * 1024;   // 2 MB per read — keeps RAM flat
+const GCM_LIMIT = 50 * 1024 * 1024;  // auto-switch GCM → CBC above this
+const MAGIC     = new TextEncoder().encode('NCRPTO1\0');
+
+function concat(...arrays) {
+  const total = arrays.reduce((s, a) => s + a.byteLength, 0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const a of arrays) { out.set(new Uint8Array(a.buffer ? a.buffer : a), off); off += a.byteLength; }
+  return out;
+}
+
+async function deriveKeys(password, salt, forGCM) {
+  const raw = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 310000, hash: 'SHA-256' }, raw, 512);
+  const encKey = await crypto.subtle.importKey('raw', bits.slice(0, 32),
+    { name: forGCM ? 'AES-GCM' : 'AES-CBC', length: 256 }, false, ['encrypt', 'decrypt']);
+  if (forGCM) return { encKey };
+  const hmacKey = await crypto.subtle.importKey('raw', bits.slice(32),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+  return { encKey, hmacKey };
+}
+
+function buildHeader(isGCM, salt, iv, fileName) {
+  const nameBytes = new TextEncoder().encode(fileName);
+  const nameLen   = new Uint8Array(2);
+  new DataView(nameLen.buffer).setUint16(0, nameBytes.length, false);
+  return concat(MAGIC, new Uint8Array([isGCM ? 1 : 2]), salt, iv, nameLen, nameBytes);
+}
+
+function parseHeader(view) {
+  if (new TextDecoder().decode(view.slice(0, 8)) !== 'NCRPTO1\0')
+    throw new Error('Not a valid NcryptO file.');
+  const isGCM = view[8] === 1;
+  let off = 9;
+  const salt    = view.slice(off, off + 16); off += 16;
+  const iv      = view.slice(off, off + (isGCM ? 12 : 16)); off += isGCM ? 12 : 16;
+  const nameLen = new DataView(view.buffer, view.byteOffset + off, 2).getUint16(0, false); off += 2;
+  const origName = new TextDecoder().decode(view.slice(off, off + nameLen)); off += nameLen;
+  return { isGCM, salt, iv, origName, headerLen: off };
+}
+
+// ── CBC streaming encrypt ────────────────────────────────────────────────────
+// One crypto.subtle.encrypt call per 2 MB chunk using the last CT block as IV.
+// Web Crypto AES-CBC always appends a padding block — we strip it for non-final
+// chunks and let it run normally on the final chunk (which has our PKCS7 padding).
+async function cbcEncryptStream(file, encKey, hmacKey, iv, header, onProgress) {
+  const ctParts   = [];
+  let   runningIV = new Uint8Array(iv);
+  let   carry     = new Uint8Array(0);
+  let   done      = 0;
+  const t0        = performance.now();
+
+  for (let start = 0; start < file.size; start += CHUNK) {
+    const raw    = new Uint8Array(await file.slice(start, start + CHUNK).arrayBuffer());
+    done        += raw.byteLength;
+    const isLast = start + CHUNK >= file.size;
+    let   buf    = carry.byteLength ? concat(carry, raw) : raw;
+    carry = new Uint8Array(0);
+
+    if (isLast) {
+      // Pad to block boundary, encrypt — Web Crypto adds one more block, we take only our bytes
+      const padLen = BLOCK - (buf.byteLength % BLOCK);
+      const padded = new Uint8Array(buf.byteLength + padLen);
+      padded.set(buf); padded.fill(padLen, buf.byteLength);
+      const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-CBC', iv: runningIV }, encKey, padded));
+      ctParts.push(ct.slice(0, padded.byteLength)); // strip Web Crypto's auto-pad block
+    } else {
+      const aligned = Math.floor(buf.byteLength / BLOCK) * BLOCK;
+      carry = buf.slice(aligned);
+      if (aligned > 0) {
+        const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-CBC', iv: runningIV }, encKey, buf.slice(0, aligned)));
+        ctParts.push(ct.slice(0, aligned)); // strip auto-pad block
+        runningIV = ct.slice(aligned - BLOCK, aligned); // advance IV to last CT block
+      }
+    }
+
+    const elapsed = (performance.now() - t0) / 1000;
+    const speed   = elapsed > 0.1 ? done / elapsed : 0;
+    const eta     = speed > 0 ? (file.size - done) / speed : Infinity;
+    onProgress(done, file.size, speed, eta);
+    await tick();
+  }
+
+  // HMAC over header + ciphertext
+  onProgress(file.size, file.size, 0, 0, 'Computing HMAC…');
+  await tick();
+  const ctAll  = new Uint8Array(await new Blob(ctParts).arrayBuffer());
+  const mac    = new Uint8Array(await crypto.subtle.sign('HMAC', hmacKey, concat(new Uint8Array(await new Blob([header]).arrayBuffer()), ctAll)));
+  return new Blob([header, mac, ...ctParts]);
+}
+
+// ── CBC streaming decrypt ────────────────────────────────────────────────────
+// Web Crypto's AES-CBC decrypt() unconditionally validates + strips PKCS7 padding
+// on whatever ciphertext it's given, and throws OperationError if the result isn't
+// valid padding. That's fine for the true final chunk (which really is padded),
+// but for a "middle" chunk of a streamed file there's no real padding there —
+// it's just ordinary file bytes. To decrypt a middle chunk without tripping that
+// check, we append an ENGINEERED extra ciphertext block that is guaranteed to
+// decrypt to a full valid pad block (sixteen 0x10 bytes), using the same key's
+// encrypt capability:
+//   fakeBlock = AES-CBC-Encrypt(iv = lastRealCipherBlock, key, PADBLOCK)
+// CBC-decrypting (chunk + fakeBlock) with the correct running IV then yields the
+// real plaintext for every block of `chunk` untouched, plus a final block that
+// decrypts to exactly PADBLOCK — which Web Crypto then strips as legitimate
+// padding, leaving exactly chunk.byteLength bytes of correct plaintext.
+async function forcePadBlock(encKey, lastCipherBlock) {
+  const padBlock = new Uint8Array(BLOCK).fill(BLOCK);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-CBC', iv: lastCipherBlock }, encKey, padBlock));
+  return ct.slice(0, BLOCK); // drop Web Crypto's own auto-pad block on this 16-byte input
+}
+
+async function cbcDecryptStream(file, encKey, hmacKey, iv, headerLen, onProgress) {
+  const ctStart = headerLen + 32;
+  const ctSize  = file.size - ctStart;
+
+  // Verify HMAC first
+  onProgress(0, ctSize, 0, Infinity, 'Verifying integrity…');
+  await tick();
+  const headerBuf = await file.slice(0, headerLen).arrayBuffer();
+  const storedMac = new Uint8Array(await file.slice(headerLen, headerLen + 32).arrayBuffer());
+  const ctBufs    = [];
+  for (let s = 0; s < ctSize; s += CHUNK) {
+    ctBufs.push(await file.slice(ctStart + s, ctStart + s + CHUNK).arrayBuffer());
+    onProgress(s + Math.min(CHUNK, ctSize - s), ctSize, 0, Infinity, 'Verifying integrity…');
+    await tick();
+  }
+  const ctAll  = new Uint8Array(await new Blob(ctBufs).arrayBuffer());
+  const valid  = await crypto.subtle.verify('HMAC', hmacKey, storedMac, concat(new Uint8Array(headerBuf), ctAll));
+  if (!valid) throw { name: 'OperationError', message: 'Wrong password or corrupted file.' };
+
+  // Decrypt chunk by chunk
+  const ptParts   = [];
+  let   runningIV = new Uint8Array(iv);
+  let   done      = 0;
+  const t0        = performance.now();
+
+  for (let start = 0; start < ctSize; start += CHUNK) {
+    const chunk  = new Uint8Array(await file.slice(ctStart + start, ctStart + start + CHUNK).arrayBuffer());
+    done        += chunk.byteLength;
+    const isLast = start + CHUNK >= ctSize;
+
+    if (isLast) {
+      // Final chunk — genuinely padded; Web Crypto removes it correctly
+      const pt = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-CBC', iv: runningIV }, encKey, chunk));
+      ptParts.push(pt);
+    } else {
+      const lastBlock = chunk.slice(chunk.byteLength - BLOCK);
+      const fakePad    = await forcePadBlock(encKey, lastBlock);
+      const pt = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-CBC', iv: runningIV }, encKey, concat(chunk, fakePad)));
+      ptParts.push(pt.slice(0, chunk.byteLength));
+      runningIV = lastBlock; // advance IV to last CT block of this chunk
+    }
+
+    const elapsed = (performance.now() - t0) / 1000;
+    const speed   = elapsed > 0.1 ? done / elapsed : 0;
+    const eta     = speed > 0 ? (ctSize - done) / speed : Infinity;
+    onProgress(done, ctSize, speed, eta, 'Decrypting…');
+    await tick();
+  }
+
+  return new Blob(ptParts);
+}
+
+// ── Encrypt: one file (returns {blob, note}) ───────────────────────────────────
+async function encryptOne(it, pass, requestedAlgo, batchSize, index, onProgress) {
+  let algo = requestedAlgo;
+  let note = '';
+
+  if (algo === 'AES-GCM' && it.file.size > GCM_LIMIT) {
+    if (batchSize === 1) {
+      const yes = confirm(`This file is ${formatBytes(it.file.size)}.\n\nGCM loads the entire file into memory and may crash for files this large.\n\nSwitch to AES-256-CBC (streaming, no memory limit)?`);
+      if (!yes) throw new Error('Cancelled — file too large for GCM.');
+    }
+    algo = 'AES-CBC';
+    note = `Auto-switched to AES-256-CBC (file exceeds ${formatBytes(GCM_LIMIT)} GCM limit)`;
+  }
+
+  const isGCM = algo === 'AES-GCM';
+  const salt  = crypto.getRandomValues(new Uint8Array(16));
+  const iv    = crypto.getRandomValues(new Uint8Array(isGCM ? 12 : 16));
+
+  const prefix = batchSize > 1 ? `[${index + 1}/${batchSize}] ${it.file.name} — ` : '';
+  onProgress(2, prefix + 'Deriving key…');
+  await tick();
+  const { encKey, hmacKey } = await deriveKeys(pass, salt, isGCM);
+
+  let blob;
+  if (isGCM) {
+    onProgress(15, prefix + 'Reading file…');
+    await tick();
+    const fileData  = await it.file.arrayBuffer();
+    onProgress(50, prefix + 'Encrypting…');
+    await tick();
+    const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, encKey, fileData);
+    blob = new Blob([buildHeader(true, salt, iv, it.file.name), new Uint8Array(encrypted)]);
+    onProgress(100, prefix + 'Done');
+  } else {
+    const header = buildHeader(false, salt, iv, it.file.name);
+    blob = await cbcEncryptStream(it.file, encKey, hmacKey, iv, header,
+      (done, total, speed, eta, customLabel) => {
+        const pct   = 5 + (done / total) * 88;
+        const label = customLabel
+          ? customLabel
+          : `Encrypting…  ${formatBytes(done)} / ${formatBytes(total)}${speed > 0 ? `  •  ${formatSpeed(speed)}  •  ETA ${formatETA(eta)}` : ''}`;
+        onProgress(pct, prefix + label);
+      });
+    onProgress(100, prefix + 'Done');
+  }
+
+  return { blob, isGCM, note };
+}
+
+// ── Encrypt: entry point (loops the whole queue with one passphrase) ──────────
 async function doEncrypt() {
-  const file = state.enc.file;
-  const pass = document.getElementById('pass-enc').value;
-  if (!file) { alert('Please select a file first.'); return; }
-  if (!pass) { alert('Please enter a password.'); return; }
+  const items = state.enc.items;
+  const pass  = document.getElementById('pass-enc').value;
+  if (!items.length) { alert('Please add at least one file.'); return; }
+  if (!pass)          { alert('Please enter a password.');      return; }
 
-  const btn = document.getElementById('btn-encrypt');
+  const btn  = document.getElementById('btn-encrypt');
   const spin = document.getElementById('spin-enc');
   btn.disabled = true; spin.classList.add('visible');
-
-  const progWrap = document.getElementById('prog-enc');
-  progWrap.classList.add('visible');
+  document.getElementById('prog-enc').classList.add('visible');
   hideResult('enc');
 
-  try {
-    const algo = state.algo;
-    const fileData = await file.arrayBuffer();
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(algo === 'AES-GCM' ? 12 : 16));
+  items.forEach(it => { it.status = 'pending'; it.errorMsg = null; it.resultBlob = null; it.resultName = null; });
+  renderFileList('enc');
 
-    await new Promise(res => animateProgress('prog-enc-bar','prog-enc-pct','prog-enc-label','Deriving key…', 600, res));
+  const requestedAlgo = state.algo;
+  let ok = 0, fail = 0;
+  const notes = [];
 
-    const key = await deriveKey(pass, salt, algo);
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    it.status = 'working';
+    renderFileList('enc');
+    try {
+      const { blob, isGCM, note } = await encryptOne(it, pass, requestedAlgo, items.length, i,
+        (pct, label) => setProgress('prog-enc-bar', 'prog-enc-pct', 'prog-enc-label', pct, label));
+      it.status     = 'done';
+      it.resultBlob = blob;
+      it.resultName = it.file.name + '.enc';
+      if (note) notes.push(`${it.file.name}: ${note}`);
+      ok++;
+    } catch (err) {
+      it.status   = 'error';
+      it.errorMsg = err.message || String(err);
+      fail++;
+    }
+    renderFileList('enc');
+  }
 
-    await new Promise(res => animateProgress('prog-enc-bar','prog-enc-pct','prog-enc-label','Encrypting…', 800, res));
+  const res = document.getElementById('res-enc');
+  res.className = 'result-box visible ' + (fail === 0 ? 'success' : 'error-box');
+  document.getElementById('res-enc-head').className = 'result-header ' + (fail === 0 ? 'ok' : 'err');
+  document.getElementById('res-enc-title').textContent = fail === 0
+    ? (items.length > 1 ? 'Encryption complete' : 'Encryption complete')
+    : `Encryption finished with ${fail} error${fail > 1 ? 's' : ''}`;
 
-    const encrypted = await crypto.subtle.encrypt({ name: algo, iv }, key, fileData);
+  let metaHtml = items.length > 1
+    ? `${ok} of ${items.length} file(s) encrypted successfully.`
+    : `Algorithm: ${requestedAlgo === 'AES-GCM' ? 'AES-256-GCM' : 'AES-256-CBC+HMAC'}<br>` +
+      `Original size: ${formatBytes(items[0].file.size)}<br>` +
+      (items[0].resultBlob ? `Encrypted size: ${formatBytes(items[0].resultBlob.size)}<br>` : '') +
+      `Output file: ${items[0].file.name}.enc`;
+  if (notes.length) metaHtml += `<br>` + notes.map(n => `<span class="warn-line">${escapeHtml(n)}</span>`).join('<br>');
+  document.getElementById('res-enc-meta').innerHTML = metaHtml;
 
-    // Build payload: magic(8) + algo(1) + salt(16) + iv(12 or 16) + originalName(len prefixed) + data
-    const nameBytes = new TextEncoder().encode(file.name);
-    const nameLenBuf = new Uint8Array(2);
-    new DataView(nameLenBuf.buffer).setUint16(0, nameBytes.length, false);
-
-    const magic = new TextEncoder().encode('NCRPTO1\0'); // 8 bytes
-    const algoByte = new Uint8Array([algo === 'AES-GCM' ? 1 : 2]);
-
-    const payload = concat(magic, algoByte, salt, iv, nameLenBuf, nameBytes, new Uint8Array(encrypted));
-
-    finishProgress('prog-enc-bar','prog-enc-pct');
-    state.enc.result = { blob: new Blob([payload]), name: file.name + '.enc' };
-
-    // Show result
-    const res = document.getElementById('res-enc');
-    res.className = 'result-box visible success';
-    document.getElementById('res-enc-head').className = 'result-header ok';
-    document.getElementById('res-enc-title').textContent = 'Encryption complete';
-    document.getElementById('res-enc-meta').innerHTML =
-      `Algorithm: ${algo === 'AES-GCM' ? 'AES-256-GCM' : 'AES-256-CBC'}<br>` +
-      `Original size: ${formatBytes(file.size)}<br>` +
-      `Encrypted size: ${formatBytes(payload.byteLength)}<br>` +
-      `Output file: ${file.name}.enc`;
-
-  } catch (err) {
-    const res = document.getElementById('res-enc');
-    res.className = 'result-box visible error-box';
-    document.getElementById('res-enc-head').className = 'result-header err';
-    document.getElementById('res-enc-title').textContent = 'Encryption failed';
-    document.getElementById('res-enc-meta').textContent = err.message;
-    document.getElementById('btn-dl-enc').style.display = 'none';
+  const dlAllBtn = document.getElementById('btn-dlall-enc');
+  const dlAllLbl = document.getElementById('btn-dlall-enc-label');
+  if (ok > 0) {
+    dlAllBtn.style.display = '';
+    dlAllLbl.textContent = ok > 1 ? `Download All (${ok} files)` : 'Download Encrypted File';
+  } else {
+    dlAllBtn.style.display = 'none';
   }
 
   btn.disabled = false; spin.classList.remove('visible');
 }
 
-// ─── Decrypt ─────────────────────────────────────────────────────────────────
-async function doDecrypt() {
-  const file = state.dec.file;
-  const pass = document.getElementById('pass-dec').value;
-  if (!file) { alert('Please select an encrypted file.'); return; }
-  if (!pass) { alert('Please enter a password.'); return; }
+// ── Decrypt: one file (returns {blob, origName}) ───────────────────────────────
+async function decryptOne(it, pass, batchSize, index, onProgress) {
+  const hView = new Uint8Array(await it.file.slice(0, 512).arrayBuffer());
+  const { isGCM, salt, iv, origName, headerLen } = parseHeader(hView);
 
-  const btn = document.getElementById('btn-decrypt');
+  const prefix = batchSize > 1 ? `[${index + 1}/${batchSize}] ${it.file.name} — ` : '';
+  onProgress(2, prefix + 'Deriving key…');
+  await tick();
+  const { encKey, hmacKey } = await deriveKeys(pass, salt, isGCM);
+
+  let blob;
+  if (isGCM) {
+    onProgress(15, prefix + 'Reading file…');
+    await tick();
+    const fullBuf   = await it.file.arrayBuffer();
+    onProgress(50, prefix + 'Decrypting…');
+    await tick();
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, encKey, fullBuf.slice(headerLen));
+    blob = new Blob([decrypted]);
+    onProgress(100, prefix + 'Done');
+  } else {
+    blob = await cbcDecryptStream(it.file, encKey, hmacKey, iv, headerLen,
+      (done, total, speed, eta, customLabel) => {
+        const pct   = 5 + (done / total) * 88;
+        const label = customLabel
+          ? customLabel
+          : `Decrypting…  ${formatBytes(done)} / ${formatBytes(total)}${speed > 0 ? `  •  ${formatSpeed(speed)}  •  ETA ${formatETA(eta)}` : ''}`;
+        onProgress(pct, prefix + label);
+      });
+    onProgress(100, prefix + 'Done');
+  }
+
+  return { blob, origName, isGCM };
+}
+
+// ── Decrypt: entry point (loops the whole queue with one passphrase) ──────────
+async function doDecrypt() {
+  const items = state.dec.items;
+  const pass  = document.getElementById('pass-dec').value;
+  if (!items.length) { alert('Please add at least one encrypted file.'); return; }
+  if (!pass)          { alert('Please enter a password.');                return; }
+
+  const btn  = document.getElementById('btn-decrypt');
   const spin = document.getElementById('spin-dec');
   btn.disabled = true; spin.classList.add('visible');
-
-  const progWrap = document.getElementById('prog-dec');
-  progWrap.classList.add('visible');
+  document.getElementById('prog-dec').classList.add('visible');
   hideResult('dec');
 
-  try {
-    const buf = await file.arrayBuffer();
-    const view = new Uint8Array(buf);
+  items.forEach(it => { it.status = 'pending'; it.errorMsg = null; it.resultBlob = null; it.resultName = null; });
+  renderFileList('dec');
 
-    // Read magic
-    const magic = new TextDecoder().decode(view.slice(0, 8));
-    if (magic !== 'NCRPTO1\0') throw new Error('Not a valid NcryptO file.');
+  let ok = 0, fail = 0;
 
-    const algoByte = view[8];
-    const algo = algoByte === 1 ? 'AES-GCM' : 'AES-CBC';
-    const ivLen = algo === 'AES-GCM' ? 12 : 16;
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    it.status = 'working';
+    renderFileList('dec');
+    try {
+      const { blob, origName } = await decryptOne(it, pass, items.length, i,
+        (pct, label) => setProgress('prog-dec-bar', 'prog-dec-pct', 'prog-dec-label', pct, label));
+      it.status     = 'done';
+      it.resultBlob = blob;
+      it.resultName = origName;
+      ok++;
+    } catch (err) {
+      it.status   = 'error';
+      it.errorMsg = (err.name === 'OperationError' || String(err.message).toLowerCase().includes('wrong'))
+        ? 'Wrong password or corrupted file.'
+        : (err.message || 'Wrong password or corrupted file.');
+      fail++;
+    }
+    renderFileList('dec');
+  }
 
-    let offset = 9;
-    const salt = view.slice(offset, offset + 16); offset += 16;
-    const iv   = view.slice(offset, offset + ivLen); offset += ivLen;
-    const nameLen = new DataView(buf, offset, 2).getUint16(0, false); offset += 2;
-    const origName = new TextDecoder().decode(view.slice(offset, offset + nameLen)); offset += nameLen;
-    const cipherData = view.slice(offset);
+  const res = document.getElementById('res-dec');
+  res.className = 'result-box visible ' + (fail === 0 ? 'success' : 'error-box');
+  document.getElementById('res-dec-head').className = 'result-header ' + (fail === 0 ? 'ok' : 'err');
+  document.getElementById('res-dec-title').textContent = fail === 0
+    ? 'Decryption complete'
+    : `Decryption finished with ${fail} error${fail > 1 ? 's' : ''}`;
 
-    await new Promise(res => animateProgress('prog-dec-bar','prog-dec-pct','prog-dec-label','Deriving key…', 600, res));
-    const key = await deriveKey(pass, salt, algo);
+  const doneItems = items.filter(it => it.status === 'done');
+  document.getElementById('res-dec-meta').innerHTML = items.length > 1
+    ? `${ok} of ${items.length} file(s) decrypted successfully.`
+    : (doneItems.length
+        ? `Decrypted size: ${formatBytes(doneItems[0].resultBlob.size)}<br>Original filename: ${escapeHtml(doneItems[0].resultName)}`
+        : escapeHtml(items[0].errorMsg || 'Decryption failed.'));
 
-    await new Promise(res => animateProgress('prog-dec-bar','prog-dec-pct','prog-dec-label','Decrypting…', 800, res));
-    const decrypted = await crypto.subtle.decrypt({ name: algo, iv }, key, cipherData);
+  const decActions = document.getElementById('dec-actions');
+  const previewBtn = document.getElementById('btn-preview-dec');
+  const dlAllBtn   = document.getElementById('btn-dlall-dec');
+  const dlAllLbl   = document.getElementById('btn-dlall-dec-label');
 
-    finishProgress('prog-dec-bar','prog-dec-pct');
-    state.dec.result = { blob: new Blob([decrypted]), name: origName };
-
-    const res = document.getElementById('res-dec');
-    res.className = 'result-box visible success';
-    document.getElementById('res-dec-head').className = 'result-header ok';
-    document.getElementById('res-dec-title').textContent = 'Decryption complete';
-    document.getElementById('res-dec-meta').innerHTML =
-      `Algorithm: ${algo === 'AES-GCM' ? 'AES-256-GCM' : 'AES-256-CBC'}<br>` +
-      `Decrypted size: ${formatBytes(decrypted.byteLength)}<br>` +
-      `Original filename: ${origName}`;
-    document.getElementById('dec-actions').style.display = '';
-
-  } catch (err) {
-    const res = document.getElementById('res-dec');
-    res.className = 'result-box visible error-box';
-    document.getElementById('res-dec-head').className = 'result-header err';
-    document.getElementById('res-dec-title').textContent = 'Decryption failed';
-    document.getElementById('res-dec-meta').textContent =
-      err.name === 'OperationError' ? 'Wrong password or corrupted file.' : err.message;
-    document.getElementById('dec-actions').style.display = 'none';
+  if (ok > 0) {
+    decActions.style.display = '';
+    dlAllLbl.textContent = ok > 1 ? `Download All (${ok} files)` : 'Download';
+    // Bottom "Preview" button only makes sense unambiguously for a single result;
+    // for batches, use the eye icon on each row in the file list instead.
+    previewBtn.style.display = doneItems.length === 1 ? '' : 'none';
+  } else {
+    decActions.style.display = 'none';
   }
 
   btn.disabled = false; spin.classList.remove('visible');
 }
 
-// ─── Download ─────────────────────────────────────────────────────────────────
-function downloadResult(side) {
-  const r = state[side].result;
-  if (!r) return;
-  const url = URL.createObjectURL(r.blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = r.name;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
+// ── Download ─────────────────────────────────────────────────────────────────
+function triggerDownload(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// ─── Preview ──────────────────────────────────────────────────────────────────
-function getFileCategory(name, blob) {
-  const ext = (name.split('.').pop() || '').toLowerCase();
-  const mime = blob.type || '';
+function downloadOne(side, id) {
+  const it = state[side].items.find(x => x.id === id);
+  if (!it || !it.resultBlob) return;
+  triggerDownload(it.resultBlob, it.resultName);
+}
 
-  if (/^image\//.test(mime) || /^(png|jpe?g|gif|webp|svg|bmp|ico|avif)$/.test(ext))
-    return 'image';
-  if (mime === 'application/pdf' || ext === 'pdf')
-    return 'pdf';
-  if (/^video\//.test(mime) || /^(mp4|webm|ogv|mov|mkv)$/.test(ext))
-    return 'video';
-  if (/^audio\//.test(mime) || /^(mp3|wav|ogg|flac|aac|m4a)$/.test(ext))
-    return 'audio';
-  if (/^text\//.test(mime) ||
-      /^(txt|md|markdown|json|csv|xml|html|htm|css|js|ts|jsx|tsx|py|sh|bash|yml|yaml|toml|ini|cfg|log|sql|rs|go|java|c|cpp|h|rb|php|swift|kt)$/.test(ext))
-    return 'text';
+async function downloadAll(side) {
+  const done = state[side].items.filter(it => it.status === 'done' && it.resultBlob);
+  for (let i = 0; i < done.length; i++) {
+    triggerDownload(done[i].resultBlob, done[i].resultName);
+    if (i < done.length - 1) await new Promise(r => setTimeout(r, 300)); // avoid browser multi-download blocking
+  }
+}
+
+// ── Preview ───────────────────────────────────────────────────────────────────
+function getFileCategory(name, blob) {
+  const ext  = (name.split('.').pop() || '').toLowerCase();
+  const mime = blob.type || '';
+  if (/^image\//.test(mime) || /^(png|jpe?g|gif|webp|svg|bmp|ico|avif)$/.test(ext)) return 'image';
+  if (mime === 'application/pdf' || ext === 'pdf')  return 'pdf';
+  if (/^video\//.test(mime) || /^(mp4|webm|ogv|mov|mkv)$/.test(ext)) return 'video';
+  if (/^audio\//.test(mime) || /^(mp3|wav|ogg|flac|aac|m4a)$/.test(ext)) return 'audio';
+  if (/^text\//.test(mime)  || /^(txt|md|markdown|json|csv|xml|html|htm|css|js|ts|jsx|tsx|py|sh|bash|yml|yaml|toml|ini|cfg|log|sql|rs|go|java|c|cpp|h|rb|php|swift|kt)$/.test(ext)) return 'text';
   return 'unsupported';
 }
 
 function syntaxHighlightJSON(str) {
-  return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
-    let cls = 'tok-num';
-    if (/^"/.test(match)) cls = /:$/.test(match) ? 'tok-key' : 'tok-str';
-    else if (/true|false/.test(match)) cls = 'tok-bool';
-    else if (/null/.test(match)) cls = 'tok-null';
-    return `<span class="${cls}">${match}</span>`;
+  return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+    const cls = /^"/.test(m) ? (/:$/.test(m) ? 'tok-key' : 'tok-str') : /true|false/.test(m) ? 'tok-bool' : /null/.test(m) ? 'tok-null' : 'tok-num';
+    return `<span class="${cls}">${m}</span>`;
   });
 }
 
-async function previewResult() {
-  const r = state.dec.result;
-  if (!r) return;
+// id: optional — if omitted, falls back to the single successfully-decrypted item (if there is exactly one)
+async function previewResult(id) {
+  const items = state.dec.items;
+  let it;
+  if (id) {
+    it = items.find(x => x.id === id);
+  } else {
+    const done = items.filter(x => x.status === 'done');
+    if (done.length !== 1) return;
+    it = done[0];
+  }
+  if (!it || !it.resultBlob) return;
 
-  const { blob, name } = r;
-  const ext = (name.split('.').pop() || '').toLowerCase();
+  const { resultBlob: blob, resultName: name } = it;
+  const ext      = (name.split('.').pop() || '').toLowerCase();
   const category = getFileCategory(name, blob);
-  const url = URL.createObjectURL(blob);
+  const url      = URL.createObjectURL(blob);
 
-  // Set header info
   document.getElementById('modal-filename').textContent = name;
   document.getElementById('modal-filetype').textContent = ext.toUpperCase() || '?';
 
@@ -1347,74 +1052,40 @@ async function previewResult() {
   body.innerHTML = '';
 
   if (category === 'image') {
-    const wrap = document.createElement('div');
-    wrap.className = 'preview-image';
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = name;
-    wrap.appendChild(img);
-    body.appendChild(wrap);
-
+    const wrap = Object.assign(document.createElement('div'), { className: 'preview-image' });
+    const img  = Object.assign(document.createElement('img'), { src: url, alt: name });
+    wrap.appendChild(img); body.appendChild(wrap);
   } else if (category === 'pdf') {
-    const iframe = document.createElement('iframe');
-    iframe.className = 'preview-pdf';
-    iframe.src = url;
-    iframe.title = name;
+    const iframe = Object.assign(document.createElement('iframe'), { className: 'preview-pdf', src: url, title: name });
     body.appendChild(iframe);
-
   } else if (category === 'video') {
-    const wrap = document.createElement('div');
-    wrap.className = 'preview-media';
-    const vid = document.createElement('video');
-    vid.src = url; vid.controls = true; vid.style.maxHeight = '60vh';
-    wrap.appendChild(vid);
-    body.appendChild(wrap);
-
+    const wrap = Object.assign(document.createElement('div'), { className: 'preview-media' });
+    const vid  = Object.assign(document.createElement('video'), { src: url, controls: true });
+    vid.style.maxHeight = '60vh'; wrap.appendChild(vid); body.appendChild(wrap);
   } else if (category === 'audio') {
-    const wrap = document.createElement('div');
-    wrap.className = 'preview-media';
-    const aud = document.createElement('audio');
-    aud.src = url; aud.controls = true;
-    wrap.appendChild(aud);
-    body.appendChild(wrap);
-
+    const wrap = Object.assign(document.createElement('div'), { className: 'preview-media' });
+    const aud  = Object.assign(document.createElement('audio'), { src: url, controls: true });
+    wrap.appendChild(aud); body.appendChild(wrap);
   } else if (category === 'text') {
     const text = await blob.text();
-    const pre = document.createElement('pre');
-    pre.className = 'preview-text';
-
+    const pre  = Object.assign(document.createElement('pre'), { className: 'preview-text' });
     if (ext === 'json') {
-      try {
-        const pretty = JSON.stringify(JSON.parse(text), null, 2);
-        pre.innerHTML = syntaxHighlightJSON(
-          pretty.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        );
-      } catch { pre.textContent = text; }
-    } else {
-      pre.textContent = text;
-    }
+      try { pre.innerHTML = syntaxHighlightJSON(JSON.stringify(JSON.parse(text), null, 2).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')); }
+      catch { pre.textContent = text; }
+    } else { pre.textContent = text; }
     body.appendChild(pre);
-
   } else {
-    const wrap = document.createElement('div');
-    wrap.className = 'preview-unsupported';
-    wrap.innerHTML = `
-      <svg class="preview-unsupported-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="9" y1="15" x2="15" y2="15"/>
-      </svg>
+    body.innerHTML = `<div class="preview-unsupported">
+      <svg class="preview-unsupported-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
       <div class="preview-unsupported-title">Preview not available</div>
-      <div class="preview-unsupported-sub">.${ext} files cannot be previewed in the browser.<br>Download the file to open it locally.</div>`;
-    body.appendChild(wrap);
+      <div class="preview-unsupported-sub">.${ext} files cannot be previewed in the browser.<br>Download the file to open it locally.</div>
+    </div>`;
   }
 
-  // Open modal
   document.getElementById('modal-backdrop').classList.add('open');
   document.body.style.overflow = 'hidden';
-
-  // Store url to revoke on close
   state._previewUrl = url;
+  state._previewId  = it.id;
 }
 
 function closePreview(e) {
@@ -1425,17 +1096,19 @@ function closePreview(e) {
   document.getElementById('modal-body').innerHTML = '';
 }
 
-// Close on Escape key
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closePreview();
-});
-function concat(...arrays) {
-  const total = arrays.reduce((s, a) => s + a.byteLength, 0);
-  const out = new Uint8Array(total);
-  let off = 0;
-  for (const a of arrays) { out.set(new Uint8Array(a.buffer ? a.buffer : a), off); off += a.byteLength; }
-  return out;
+// The header "Download" button in the preview modal always downloads whatever is
+// currently previewed, whether that came from the single-result button or a
+// per-row eye icon.
+function downloadPreviewed() {
+  const it = state.dec.items.find(x => x.id === state._previewId);
+  if (it) triggerDownload(it.resultBlob, it.resultName);
 }
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
+
+// Init: primary buttons start disabled until a file is queued
+document.getElementById('btn-encrypt').disabled = true;
+document.getElementById('btn-decrypt').disabled = true;
 </script>
 </body>
 </html>
