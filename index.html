@@ -141,6 +141,33 @@
   .progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
     border-radius:99px;width:0;transition:width .2s linear}
 
+  /* Overall batch progress (shown above the per-file bar when >1 file is queued) */
+  .batch-progress-wrap{display:none;margin-top:20px}
+  .batch-progress-wrap.visible{display:block}
+  .batch-progress-label{display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:7px;gap:8px}
+  .batch-progress-count{font-family:var(--mono);font-size:.72rem;font-weight:500;
+    letter-spacing:.03em;color:var(--text);background:var(--surface2);
+    border:1px solid var(--border);border-radius:99px;padding:3px 11px}
+  .batch-progress-pct{font-family:var(--mono);font-size:.72rem;color:var(--text-muted)}
+  .batch-progress-track{height:7px;background:var(--surface2);border-radius:99px;overflow:hidden}
+  .batch-progress-bar{height:100%;border-radius:99px;width:0;transition:width .25s ease}
+
+  /* Toggle switch */
+  .toggle-field{margin-bottom:24px}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .toggle-text{flex:1;min-width:0}
+  .toggle-desc{font-family:var(--mono);font-size:.68rem;color:var(--text-dim);
+    line-height:1.5;margin-top:3px}
+  .switch{position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0}
+  .switch input{opacity:0;width:0;height:0;position:absolute}
+  .switch-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;
+    background:var(--surface2);border:1px solid var(--border);transition:.2s;border-radius:99px}
+  .switch-slider:before{position:absolute;content:"";height:16px;width:16px;left:2px;top:2px;
+    background:var(--text-muted);border-radius:50%;transition:.2s}
+  .switch input:checked + .switch-slider{background:var(--accent);border-color:var(--accent)}
+  .switch input:checked + .switch-slider:before{transform:translateX(18px);background:#fff}
+
   /* Result box */
   .result-box{display:none;margin-top:20px;background:var(--surface2);border:1px solid var(--border);
     border-radius:12px;padding:18px}
@@ -295,11 +322,32 @@
         <div class="algo-chip" onclick="selectAlgo(this,'AES-CBC')">AES-256-CBC</div>
       </div>
 
+      <div class="field toggle-field">
+        <div class="toggle-row">
+          <div class="toggle-text">
+            <label class="field-label" for="toggle-randomize" style="margin-bottom:0">Randomize Output Filename</label>
+            <div class="toggle-desc">Encrypted file gets a random name instead of "&lt;name&gt;.enc". The original name is still stored inside and comes back automatically on decrypt.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-randomize" onchange="state.randomizeNames = this.checked" />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+      </div>
+
       <button class="btn-primary" id="btn-encrypt" onclick="doEncrypt()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/></svg>
         <span id="btn-encrypt-label">Encrypt File</span>
         <div class="spinner" id="spin-enc"></div>
       </button>
+
+      <div class="batch-progress-wrap" id="batch-prog-enc">
+        <div class="batch-progress-label">
+          <span class="batch-progress-count" id="batch-prog-enc-count">File 1 of 1</span>
+          <span class="batch-progress-pct" id="batch-prog-enc-pct">0%</span>
+        </div>
+        <div class="batch-progress-track"><div class="batch-progress-bar" id="batch-prog-enc-bar" style="background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div>
+      </div>
 
       <div class="progress-wrap" id="prog-enc">
         <div class="progress-label"><span id="prog-enc-label">Encrypting…</span><span id="prog-enc-pct">0%</span></div>
@@ -312,10 +360,16 @@
           <span id="res-enc-title">Encryption complete</span>
         </div>
         <div class="result-meta" id="res-enc-meta"></div>
-        <button class="btn-download" id="btn-dlall-enc" style="margin-top:14px" onclick="downloadAll('enc')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span id="btn-dlall-enc-label">Download Encrypted File</span>
-        </button>
+        <div class="result-actions" id="enc-actions" style="margin-top:14px">
+          <button class="btn-preview" id="btn-mapping-enc" style="display:none" onclick="downloadNameMapping()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Name Mapping (.txt)
+          </button>
+          <button class="btn-download" id="btn-dlall-enc" onclick="downloadAll('enc')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span id="btn-dlall-enc-label">Download Encrypted File</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -354,6 +408,14 @@
         <span id="btn-decrypt-label">Decrypt File</span>
         <div class="spinner" id="spin-dec"></div>
       </button>
+
+      <div class="batch-progress-wrap" id="batch-prog-dec">
+        <div class="batch-progress-label">
+          <span class="batch-progress-count" id="batch-prog-dec-count">File 1 of 1</span>
+          <span class="batch-progress-pct" id="batch-prog-dec-pct">0%</span>
+        </div>
+        <div class="batch-progress-track"><div class="batch-progress-bar" id="batch-prog-dec-bar" style="background:linear-gradient(90deg,var(--accent2),#f0abfc)"></div></div>
+      </div>
 
       <div class="progress-wrap" id="prog-dec">
         <div class="progress-label"><span id="prog-dec-label">Decrypting…</span><span id="prog-dec-pct">0%</span></div>
@@ -421,9 +483,18 @@ let state = {
   enc: { items: [] },
   dec: { items: [] },
   algo: 'AES-GCM',
+  randomizeNames: false,
 };
 
 function makeId() { return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+function randomAlnumName(len = 16) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const bytes = crypto.getRandomValues(new Uint8Array(len));
+  let out = '';
+  for (let i = 0; i < len; i++) out += chars[bytes[i] % chars.length];
+  return out;
+}
 
 // ── UI helpers ───────────────────────────────────────────────────────────────
 function switchTab(tab) {
@@ -543,7 +614,14 @@ function renderFileRow(side, it) {
 
   const displayName = it.status === 'done' ? it.resultName : it.file.name;
   const rowClass    = it.status === 'error' ? 'file-pill visible err' : 'file-pill visible';
-  const subText     = it.status === 'error' ? `<span class="file-pill-size" style="color:var(--error)">${escapeHtml(it.errorMsg || 'failed')}</span>` : `<span class="file-pill-size">${sizeStr}</span>`;
+  let subText;
+  if (it.status === 'error') {
+    subText = `<span class="file-pill-size" style="color:var(--error)">${escapeHtml(it.errorMsg || 'failed')}</span>`;
+  } else if (it.status === 'done' && !isDec && it.wasRandomized) {
+    subText = `<span class="file-pill-size">${sizeStr} · was: ${escapeHtml(it.file.name)}</span>`;
+  } else {
+    subText = `<span class="file-pill-size">${sizeStr}</span>`;
+  }
 
   return `<div class="${rowClass}" data-id="${it.id}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -822,25 +900,44 @@ async function doEncrypt() {
   const spin = document.getElementById('spin-enc');
   btn.disabled = true; spin.classList.add('visible');
   document.getElementById('prog-enc').classList.add('visible');
+  const batchWrap = document.getElementById('batch-prog-enc');
+  if (items.length > 1) batchWrap.classList.add('visible'); else batchWrap.classList.remove('visible');
   hideResult('enc');
 
-  items.forEach(it => { it.status = 'pending'; it.errorMsg = null; it.resultBlob = null; it.resultName = null; });
+  items.forEach(it => { it.status = 'pending'; it.errorMsg = null; it.resultBlob = null; it.resultName = null; it.wasRandomized = false; });
   renderFileList('enc');
 
   const requestedAlgo = state.algo;
+  const useRandomNames = state.randomizeNames;
+  const usedNames = new Set();
   let ok = 0, fail = 0;
   const notes = [];
+  const nameMap = []; // { randomName, originalName } — only populated when useRandomNames is on
 
   for (let i = 0; i < items.length; i++) {
     const it = items[i];
     it.status = 'working';
     renderFileList('enc');
+    setProgress('batch-prog-enc-bar', 'batch-prog-enc-pct', null, (i / items.length) * 100, '');
+    document.getElementById('batch-prog-enc-count').textContent = `File ${i + 1} of ${items.length}`;
     try {
       const { blob, isGCM, note } = await encryptOne(it, pass, requestedAlgo, items.length, i,
-        (pct, label) => setProgress('prog-enc-bar', 'prog-enc-pct', 'prog-enc-label', pct, label));
+        (pct, label) => {
+          setProgress('prog-enc-bar', 'prog-enc-pct', 'prog-enc-label', pct, label);
+          setProgress('batch-prog-enc-bar', 'batch-prog-enc-pct', null, ((i + pct / 100) / items.length) * 100, '');
+        });
       it.status     = 'done';
       it.resultBlob = blob;
-      it.resultName = it.file.name + '.enc';
+      it.wasRandomized = useRandomNames;
+      if (useRandomNames) {
+        let randName;
+        do { randName = randomAlnumName(); } while (usedNames.has(randName));
+        usedNames.add(randName);
+        it.resultName = randName + '.enc';
+        nameMap.push({ randomName: it.resultName, originalName: it.file.name });
+      } else {
+        it.resultName = it.file.name + '.enc';
+      }
       if (note) notes.push(`${it.file.name}: ${note}`);
       ok++;
     } catch (err) {
@@ -851,30 +948,41 @@ async function doEncrypt() {
     renderFileList('enc');
   }
 
+  setProgress('batch-prog-enc-bar', 'batch-prog-enc-pct', null, 100, '');
+  document.getElementById('batch-prog-enc-count').textContent = `${items.length} of ${items.length} files`;
+  state.enc.lastNameMap = nameMap;
+
   const res = document.getElementById('res-enc');
   res.className = 'result-box visible ' + (fail === 0 ? 'success' : 'error-box');
   document.getElementById('res-enc-head').className = 'result-header ' + (fail === 0 ? 'ok' : 'err');
   document.getElementById('res-enc-title').textContent = fail === 0
-    ? (items.length > 1 ? 'Encryption complete' : 'Encryption complete')
+    ? 'Encryption complete'
     : `Encryption finished with ${fail} error${fail > 1 ? 's' : ''}`;
 
   let metaHtml = items.length > 1
-    ? `${ok} of ${items.length} file(s) encrypted successfully.`
+    ? `${ok} of ${items.length} file(s) encrypted successfully.` + (useRandomNames && ok > 0 ? ' Filenames were randomized — download the name mapping to keep track.' : '')
     : `Algorithm: ${requestedAlgo === 'AES-GCM' ? 'AES-256-GCM' : 'AES-256-CBC+HMAC'}<br>` +
       `Original size: ${formatBytes(items[0].file.size)}<br>` +
       (items[0].resultBlob ? `Encrypted size: ${formatBytes(items[0].resultBlob.size)}<br>` : '') +
-      `Output file: ${items[0].file.name}.enc`;
+      (useRandomNames && items[0].resultBlob
+        ? `Output file: ${items[0].resultName}  <span class="field-label-note">(originally: ${escapeHtml(items[0].file.name)})</span>`
+        : `Output file: ${items[0].file.name}.enc`);
   if (notes.length) metaHtml += `<br>` + notes.map(n => `<span class="warn-line">${escapeHtml(n)}</span>`).join('<br>');
   document.getElementById('res-enc-meta').innerHTML = metaHtml;
 
-  const dlAllBtn = document.getElementById('btn-dlall-enc');
-  const dlAllLbl = document.getElementById('btn-dlall-enc-label');
+  const dlAllBtn  = document.getElementById('btn-dlall-enc');
+  const dlAllLbl  = document.getElementById('btn-dlall-enc-label');
+  const mapBtn    = document.getElementById('btn-mapping-enc');
+  const actionsEl = document.getElementById('enc-actions');
   if (ok > 0) {
     dlAllBtn.style.display = '';
     dlAllLbl.textContent = ok > 1 ? `Download All (${ok} files)` : 'Download Encrypted File';
   } else {
     dlAllBtn.style.display = 'none';
   }
+  const showMapping = useRandomNames && nameMap.length > 1;
+  mapBtn.style.display = showMapping ? '' : 'none';
+  actionsEl.style.gridTemplateColumns = showMapping ? '1fr 1fr' : '1fr';
 
   btn.disabled = false; spin.classList.remove('visible');
 }
@@ -925,6 +1033,8 @@ async function doDecrypt() {
   const spin = document.getElementById('spin-dec');
   btn.disabled = true; spin.classList.add('visible');
   document.getElementById('prog-dec').classList.add('visible');
+  const batchWrap = document.getElementById('batch-prog-dec');
+  if (items.length > 1) batchWrap.classList.add('visible'); else batchWrap.classList.remove('visible');
   hideResult('dec');
 
   items.forEach(it => { it.status = 'pending'; it.errorMsg = null; it.resultBlob = null; it.resultName = null; });
@@ -936,9 +1046,14 @@ async function doDecrypt() {
     const it = items[i];
     it.status = 'working';
     renderFileList('dec');
+    setProgress('batch-prog-dec-bar', 'batch-prog-dec-pct', null, (i / items.length) * 100, '');
+    document.getElementById('batch-prog-dec-count').textContent = `File ${i + 1} of ${items.length}`;
     try {
       const { blob, origName } = await decryptOne(it, pass, items.length, i,
-        (pct, label) => setProgress('prog-dec-bar', 'prog-dec-pct', 'prog-dec-label', pct, label));
+        (pct, label) => {
+          setProgress('prog-dec-bar', 'prog-dec-pct', 'prog-dec-label', pct, label);
+          setProgress('batch-prog-dec-bar', 'batch-prog-dec-pct', null, ((i + pct / 100) / items.length) * 100, '');
+        });
       it.status     = 'done';
       it.resultBlob = blob;
       it.resultName = origName;
@@ -952,6 +1067,9 @@ async function doDecrypt() {
     }
     renderFileList('dec');
   }
+
+  setProgress('batch-prog-dec-bar', 'batch-prog-dec-pct', null, 100, '');
+  document.getElementById('batch-prog-dec-count').textContent = `${items.length} of ${items.length} files`;
 
   const res = document.getElementById('res-dec');
   res.className = 'result-box visible ' + (fail === 0 ? 'success' : 'error-box');
@@ -1006,6 +1124,23 @@ async function downloadAll(side) {
     triggerDownload(done[i].resultBlob, done[i].resultName);
     if (i < done.length - 1) await new Promise(r => setTimeout(r, 300)); // avoid browser multi-download blocking
   }
+}
+
+function downloadNameMapping() {
+  const map = state.enc.lastNameMap || [];
+  if (!map.length) return;
+  const nameWidth = Math.max(...map.map(m => m.randomName.length), 'Encrypted Name'.length);
+  const lines = [
+    'NcryptO — Encrypted Filename Mapping',
+    `Generated: ${new Date().toISOString()}`,
+    '',
+    'Encrypted Name'.padEnd(nameWidth + 2) + 'Original Name',
+    '-'.repeat(nameWidth + 2 + 13),
+    ...map.map(m => m.randomName.padEnd(nameWidth + 2) + m.originalName),
+    '',
+  ];
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  triggerDownload(blob, `ncrypto-name-mapping-${Date.now()}.txt`);
 }
 
 // ── Preview ───────────────────────────────────────────────────────────────────
