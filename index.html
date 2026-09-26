@@ -632,7 +632,7 @@ function renderFileRow(side, it) {
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 // ── File input / drag-drop ───────────────────────────────────────────────────
@@ -966,7 +966,7 @@ async function doEncrypt() {
       (items[0].resultBlob ? `Encrypted size: ${formatBytes(items[0].resultBlob.size)}<br>` : '') +
       (useRandomNames && items[0].resultBlob
         ? `Output file: ${items[0].resultName}  <span class="field-label-note">(originally: ${escapeHtml(items[0].file.name)})</span>`
-        : `Output file: ${items[0].file.name}.enc`);
+        : `Output file: ${escapeHtml(items[0].file.name)}.enc`);
   if (notes.length) metaHtml += `<br>` + notes.map(n => `<span class="warn-line">${escapeHtml(n)}</span>`).join('<br>');
   document.getElementById('res-enc-meta').innerHTML = metaHtml;
 
@@ -1055,7 +1055,8 @@ async function doDecrypt() {
           setProgress('batch-prog-dec-bar', 'batch-prog-dec-pct', null, ((i + pct / 100) / items.length) * 100, '');
         });
       it.status     = 'done';
-      it.resultBlob = blob;
+      // Re-wrap with an explicit MIME type — see the comment on getMimeType.
+      it.resultBlob = new Blob([blob], { type: getMimeType(origName) });
       it.resultName = origName;
       ok++;
     } catch (err) {
@@ -1143,6 +1144,37 @@ function downloadNameMapping() {
   triggerDownload(blob, `ncrypto-name-mapping-${Date.now()}.txt`);
 }
 
+// SECURITY: decrypted blobs are created with NO declared type (see cbcDecryptStream
+// and decryptOne's GCM branch), so blob.type is always ''. If that untyped blob is
+// then handed to the PDF-preview <iframe> as its src, the browser has no declared
+// Content-Type and may fall back to MIME-sniffing the actual bytes — so a file that
+// is really HTML/JS with attacker-chosen content, given a ".pdf" name inside the
+// encrypted file's own header (data this app cannot verify), could get sniffed and
+// rendered as an HTML document inside a same-origin iframe, executing script with
+// access back into this page (reading the passphrase field, other decrypted
+// content, etc.). Giving the blob an explicit, correct type — application/pdf in
+// particular — makes the browser commit to its dedicated PDF handler instead of
+// sniffing. The iframe is also sandboxed (see previewResult) as a second,
+// independent layer in case of any browser-specific sniffing quirk.
+function getMimeType(name) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const map = {
+    pdf: 'application/pdf',
+    png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif',
+    webp: 'image/webp', svg: 'image/svg+xml', bmp: 'image/bmp', ico: 'image/x-icon', avif: 'image/avif',
+    mp4: 'video/mp4', webm: 'video/webm', ogv: 'video/ogg', mov: 'video/quicktime', mkv: 'video/x-matroska',
+    mp3: 'audio/mpeg', wav: 'audio/wav', ogg: 'audio/ogg', flac: 'audio/flac', aac: 'audio/aac', m4a: 'audio/mp4',
+    json: 'application/json', csv: 'text/csv',
+    // Anything text-like is forced to text/plain rather than e.g. text/html —
+    // this app only ever reads these via blob.text() into a <pre> (safe
+    // regardless of declared type), but never give a decrypted file a type
+    // that would let some OTHER context treat it as renderable/executable.
+    txt: 'text/plain', md: 'text/plain', markdown: 'text/plain', xml: 'text/plain',
+    html: 'text/plain', htm: 'text/plain', css: 'text/plain', js: 'text/plain', ts: 'text/plain',
+  };
+  return map[ext] || 'application/octet-stream';
+}
+
 // ── Preview ───────────────────────────────────────────────────────────────────
 function getFileCategory(name, blob) {
   const ext  = (name.split('.').pop() || '').toLowerCase();
@@ -1192,6 +1224,7 @@ async function previewResult(id) {
     wrap.appendChild(img); body.appendChild(wrap);
   } else if (category === 'pdf') {
     const iframe = Object.assign(document.createElement('iframe'), { className: 'preview-pdf', src: url, title: name });
+    iframe.setAttribute('sandbox', '');
     body.appendChild(iframe);
   } else if (category === 'video') {
     const wrap = Object.assign(document.createElement('div'), { className: 'preview-media' });
@@ -1213,7 +1246,7 @@ async function previewResult(id) {
     body.innerHTML = `<div class="preview-unsupported">
       <svg class="preview-unsupported-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
       <div class="preview-unsupported-title">Preview not available</div>
-      <div class="preview-unsupported-sub">.${ext} files cannot be previewed in the browser.<br>Download the file to open it locally.</div>
+      <div class="preview-unsupported-sub">.${escapeHtml(ext)} files cannot be previewed in the browser.<br>Download the file to open it locally.</div>
     </div>`;
   }
 
