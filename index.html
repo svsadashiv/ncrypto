@@ -680,6 +680,25 @@ const CHUNK     = 2 * 1024 * 1024;   // 2 MB per read — keeps RAM flat
 const GCM_LIMIT = 50 * 1024 * 1024;  // auto-switch GCM → CBC above this
 const MAGIC     = new TextEncoder().encode('NCRPTO1\0');
 
+// PBKDF2-HMAC-SHA256 iteration count for anything newly encrypted here (OWASP's
+// 2023 minimum recommendation for this construction) — matches the CLI tool.
+// LEGACY_PBKDF2_ITERATIONS is never used for encryption, only so decrypt can
+// still open older files (algo byte 1/2) from before this app embedded its own
+// iteration count in the header.
+//
+// File format:
+//  Legacy, fixed 310,000 iterations (still readable, never written here):
+//   GCM      (algo 0x01): magic(8) | 0x01 | salt(16) | nonce(12) | nameLen(2 BE) | name | ciphertext+tag
+//   CBC+HMAC (algo 0x02): magic(8) | 0x02 | salt(16) | iv(16)    | nameLen(2 BE) | name | hmac(32) | ciphertext
+//  Current, self-describing iteration count (what this app now writes) — same
+//  layout with a 4-byte big-endian iteration count inserted right after the
+//  algo byte, so a future bump to PBKDF2_ITERATIONS doesn't break decrypting
+//  files written by an in-between version:
+//   GCM      (algo 0x03): magic(8) | 0x03 | iterations(4 BE) | salt(16) | nonce(12) | nameLen(2 BE) | name | ciphertext+tag
+//   CBC+HMAC (algo 0x04): magic(8) | 0x04 | iterations(4 BE) | salt(16) | iv(16)    | nameLen(2 BE) | name | hmac(32) | ciphertext
+const PBKDF2_ITERATIONS        = 600000;
+const LEGACY_PBKDF2_ITERATIONS = 310000;
+
 function concat(...arrays) {
   const total = arrays.reduce((s, a) => s + a.byteLength, 0);
   const out = new Uint8Array(total);
@@ -688,9 +707,9 @@ function concat(...arrays) {
   return out;
 }
 
-async function deriveKeys(password, salt, forGCM) {
+async function deriveKeys(password, salt, forGCM, iterations) {
   const raw = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 310000, hash: 'SHA-256' }, raw, 512);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, raw, 512);
   const encKey = await crypto.subtle.importKey('raw', bits.slice(0, 32),
     { name: forGCM ? 'AES-GCM' : 'AES-CBC', length: 256 }, false, ['encrypt', 'decrypt']);
   if (forGCM) return { encKey };
@@ -699,23 +718,34 @@ async function deriveKeys(password, salt, forGCM) {
   return { encKey, hmacKey };
 }
 
-function buildHeader(isGCM, salt, iv, fileName) {
+function buildHeader(isGCM, salt, iv, fileName, iterations) {
   const nameBytes = new TextEncoder().encode(fileName);
   const nameLen   = new Uint8Array(2);
   new DataView(nameLen.buffer).setUint16(0, nameBytes.length, false);
-  return concat(MAGIC, new Uint8Array([isGCM ? 1 : 2]), salt, iv, nameLen, nameBytes);
+  const iterBytes = new Uint8Array(4);
+  new DataView(iterBytes.buffer).setUint32(0, iterations, false);
+  const algoByte  = isGCM ? 3 : 4; // 0x03/0x04 = self-describing iteration count
+  return concat(MAGIC, new Uint8Array([algoByte]), iterBytes, salt, iv, nameLen, nameBytes);
 }
 
 function parseHeader(view) {
   if (new TextDecoder().decode(view.slice(0, 8)) !== 'NCRPTO1\0')
     throw new Error('Not a valid NcryptO file.');
-  const isGCM = view[8] === 1;
+  const algoByte = view[8];
+  if (![1, 2, 3, 4].includes(algoByte)) throw new Error('Not a valid NcryptO file.');
+  const isGCM        = algoByte === 1 || algoByte === 3;
+  const hasIterField = algoByte === 3 || algoByte === 4;
   let off = 9;
+  let iterations = LEGACY_PBKDF2_ITERATIONS;
+  if (hasIterField) {
+    iterations = new DataView(view.buffer, view.byteOffset + off, 4).getUint32(0, false);
+    off += 4;
+  }
   const salt    = view.slice(off, off + 16); off += 16;
   const iv      = view.slice(off, off + (isGCM ? 12 : 16)); off += isGCM ? 12 : 16;
   const nameLen = new DataView(view.buffer, view.byteOffset + off, 2).getUint16(0, false); off += 2;
   const origName = new TextDecoder().decode(view.slice(off, off + nameLen)); off += nameLen;
-  return { isGCM, salt, iv, origName, headerLen: off };
+  return { isGCM, salt, iv, origName, headerLen: off, iterations };
 }
 
 // ── CBC streaming encrypt ────────────────────────────────────────────────────
@@ -861,7 +891,7 @@ async function encryptOne(it, pass, requestedAlgo, batchSize, index, onProgress)
   const prefix = batchSize > 1 ? `[${index + 1}/${batchSize}] ${it.file.name} — ` : '';
   onProgress(2, prefix + 'Deriving key…');
   await tick();
-  const { encKey, hmacKey } = await deriveKeys(pass, salt, isGCM);
+  const { encKey, hmacKey } = await deriveKeys(pass, salt, isGCM, PBKDF2_ITERATIONS);
 
   let blob;
   if (isGCM) {
@@ -871,10 +901,10 @@ async function encryptOne(it, pass, requestedAlgo, batchSize, index, onProgress)
     onProgress(50, prefix + 'Encrypting…');
     await tick();
     const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, encKey, fileData);
-    blob = new Blob([buildHeader(true, salt, iv, it.file.name), new Uint8Array(encrypted)]);
+    blob = new Blob([buildHeader(true, salt, iv, it.file.name, PBKDF2_ITERATIONS), new Uint8Array(encrypted)]);
     onProgress(100, prefix + 'Done');
   } else {
-    const header = buildHeader(false, salt, iv, it.file.name);
+    const header = buildHeader(false, salt, iv, it.file.name, PBKDF2_ITERATIONS);
     blob = await cbcEncryptStream(it.file, encKey, hmacKey, iv, header,
       (done, total, speed, eta, customLabel) => {
         const pct   = 5 + (done / total) * 88;
@@ -990,12 +1020,12 @@ async function doEncrypt() {
 // ── Decrypt: one file (returns {blob, origName}) ───────────────────────────────
 async function decryptOne(it, pass, batchSize, index, onProgress) {
   const hView = new Uint8Array(await it.file.slice(0, 512).arrayBuffer());
-  const { isGCM, salt, iv, origName, headerLen } = parseHeader(hView);
+  const { isGCM, salt, iv, origName, headerLen, iterations } = parseHeader(hView);
 
   const prefix = batchSize > 1 ? `[${index + 1}/${batchSize}] ${it.file.name} — ` : '';
   onProgress(2, prefix + 'Deriving key…');
   await tick();
-  const { encKey, hmacKey } = await deriveKeys(pass, salt, isGCM);
+  const { encKey, hmacKey } = await deriveKeys(pass, salt, isGCM, iterations);
 
   let blob;
   if (isGCM) {
